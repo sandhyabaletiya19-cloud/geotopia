@@ -2,16 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#0a0a1a" />
-  <meta name="description" content="Guess today's mystery country in 6 tries. Daily geography game with news-based hints. Play on Dharaverse!" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0a2e" />
+  <meta name="description"
+        content="Guess today's mystery country in 6 tries with progressive hints! Daily geography game on Dharaverse." />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Map Mystery" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="format-detection" content="telephone=no" />
 
   <!-- Open Graph -->
   <meta property="og:title" content="Map Mystery — Dharaverse Daily" />
-  <meta property="og:description" content="Guess the country. 6 tries. New puzzle every day." />
+  <meta property="og:description" content="Guess the country in 6 tries. New hints unlock each guess!" />
   <meta property="og:image" content="/games/daily-mystery/og-image.png" />
   <meta property="og:url" content="https://dharaverse.com/games/daily-mystery/" />
   <meta property="og:type" content="website" />
@@ -19,21 +23,30 @@
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Map Mystery — Dharaverse" />
-  <meta name="twitter:description" content="Daily country guessing game. Can you find it in 6 tries?" />
+  <meta name="twitter:description" content="Daily country guessing game with progressive hints. Can you find it in 6 tries?" />
 
   <title>Map Mystery — Dharaverse Daily</title>
 
   <!-- PWA Manifest -->
   <link rel="manifest" href="/games/daily-mystery/manifest.json" />
 
-  <!-- Apple Touch Icon -->
-  <link rel="apple-touch-icon" href="/games/daily-mystery/icons/icon-192.png" />
-  <link rel="icon" type="image/png" href="/games/daily-mystery/icons/icon-192.png" />
+  <!-- Icons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/games/daily-mystery/icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/games/daily-mystery/icons/icon-192.png" />
 
-  <!-- Google Fonts: Inter -->
+  <!-- Preconnect for performance -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://unpkg.com" crossorigin />
+  <link rel="preconnect" href="https://a.basemaps.cartocdn.com" crossorigin />
+  <link rel="preconnect" href="https://b.basemaps.cartocdn.com" crossorigin />
+  <link rel="preconnect" href="https://c.basemaps.cartocdn.com" crossorigin />
+
+  <!-- Google Fonts: Inter (swap for speed) -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet"
+  />
 
   <!-- Leaflet CSS -->
   <link
@@ -46,34 +59,66 @@
   <!-- Game Styles -->
   <link rel="stylesheet" href="css/game.css" />
   <link rel="stylesheet" href="css/animations.css" />
+
+  <!-- Critical inline styles for faster FCP -->
+  <style>
+    /* Prevent FOUC — loading screen visible immediately */
+    #loading-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0a0a2e;
+    }
+    /* iOS rubber-band prevention */
+    html, body {
+      overscroll-behavior: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    /* Prevent body scroll while game wrapper handles it */
+    body {
+      position: fixed;
+      width: 100%;
+      overflow: hidden;
+    }
+  </style>
 </head>
 
 <body>
 
-  <!-- ═══════════════════════════════════════════ -->
-  <!-- LOADING SCREEN                              -->
-  <!-- Controlled by: ui.js → UIController.showLoadingScreen() -->
-  <!-- ═══════════════════════════════════════════ -->
+  <!-- ═══════════════════════════════════════════════════
+       LOADING SCREEN — Candy bounce animation
+       Controlled by: ui.js → UIController.showLoadingScreen()
+       ═══════════════════════════════════════════════════ -->
   <div id="loading-screen" aria-live="polite" aria-label="Loading game">
     <div class="loading-inner">
       <div class="loading-globe" aria-hidden="true">🌍</div>
-      <p class="loading-text">Finding today's mystery country...</p>
-      <div class="loading-bar">
+      <p class="loading-text">Finding today's mystery country…</p>
+      <div class="loading-bar" role="progressbar" aria-label="Loading progress">
         <div class="loading-bar-fill"></div>
       </div>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════ -->
-  <!-- TOAST CONTAINER                             -->
-  <!-- Controlled by: ui.js → UIController.showToast() -->
-  <!-- ═══════════════════════════════════════════ -->
-  <div id="toast-container" aria-live="assertive" aria-atomic="true" role="alert"></div>
 
-  <!-- ═══════════════════════════════════════════ -->
-  <!-- MODAL OVERLAY + HOW TO PLAY MODAL           -->
-  <!-- Controlled by: ui.js → UIController.showModal() -->
-  <!-- ═══════════════════════════════════════════ -->
+  <!-- ═══════════════════════════════════════════════════
+       TOAST CONTAINER — Candy pop notifications
+       Controlled by: ui.js → UIController.showToast()
+       ═══════════════════════════════════════════════════ -->
+  <div
+    id="toast-container"
+    aria-live="assertive"
+    aria-atomic="true"
+    role="status"
+  ></div>
+
+
+  <!-- ═══════════════════════════════════════════════════
+       MODAL — How To Play (with hint system explained)
+       Controlled by: ui.js → UIController.showModal()
+       ═══════════════════════════════════════════════════ -->
   <div
     id="modal-overlay"
     class="modal-overlay"
@@ -83,75 +128,114 @@
     aria-labelledby="modal-title"
   >
     <div id="how-to-play-modal" class="modal glass-card" role="document">
+
+      <!-- Modal Header -->
       <div class="modal-header">
         <h2 id="modal-title" class="modal-title">How to Play 🗺️</h2>
         <button
           id="close-modal-btn"
           class="modal-close"
-          aria-label="Close how to play modal"
+          aria-label="Close modal"
           type="button"
         >✕</button>
       </div>
 
+      <!-- Modal Body -->
       <div class="modal-body">
-        <p class="modal-intro">Guess the mystery country in <strong>6 tries</strong>. A new country every day!</p>
+        <p class="modal-intro">
+          Guess the mystery country in <strong>6 tries</strong>.
+          Each wrong guess unlocks a <strong>new hint</strong>!
+        </p>
 
-        <div class="modal-steps">
-          <div class="modal-step">
+        <!-- Game Steps -->
+        <div class="modal-steps stagger-in">
+          <div class="modal-step" data-lazy="slide-right">
             <span class="step-icon">🔍</span>
             <div class="step-text">
               <strong>Type any country</strong>
-              <span>Start with any guess — no hints given upfront</span>
+              <span>Start with your best guess — no hints upfront</span>
             </div>
           </div>
 
-          <div class="modal-step">
+          <div class="modal-step" data-lazy="slide-right">
             <span class="step-icon">📏</span>
             <div class="step-text">
-              <strong>Get distance feedback</strong>
-              <span>See how many km away your guess is from the target</span>
+              <strong>Get distance + direction</strong>
+              <span>See how far away and which direction the answer is</span>
             </div>
           </div>
 
-          <div class="modal-step">
-            <span class="step-icon">🧭</span>
+          <div class="modal-step" data-lazy="slide-right">
+            <span class="step-icon">💡</span>
             <div class="step-text">
-              <strong>Follow the arrow</strong>
-              <span>Arrow points toward the mystery country</span>
+              <strong>Unlock hints after each guess</strong>
+              <span>New clues appear: fun facts, climate, sports, continent & more</span>
             </div>
           </div>
 
-          <div class="modal-step">
-            <span class="step-icon">🌍</span>
+          <div class="modal-step" data-lazy="slide-right">
+            <span class="step-icon">🏆</span>
             <div class="step-text">
-              <strong>Continent clue</strong>
-              <span>🟢 Same continent &nbsp;🟡 Same hemisphere &nbsp;🔴 Wrong side</span>
+              <strong>Find it in fewer tries!</strong>
+              <span>Build your streak and share your result</span>
             </div>
           </div>
         </div>
 
-        <div class="modal-feedback-legend">
-          <h3>Feedback Colors</h3>
+        <!-- Hint System Legend -->
+        <div class="modal-feedback-legend" data-lazy="scale">
+          <h3>🎯 Hint Unlock System</h3>
+          <div class="legend-row">
+            <span class="legend-dot" style="background:var(--candy-blue);color:var(--candy-blue)"></span>
+            <span><strong>Guess 1:</strong> Fun fact (animal / flag / culture)</span>
+          </div>
+          <div class="legend-row">
+            <span class="legend-dot" style="background:var(--candy-orange);color:var(--candy-orange)"></span>
+            <span><strong>Guess 2:</strong> Direction from your guess</span>
+          </div>
+          <div class="legend-row">
+            <span class="legend-dot" style="background:var(--candy-mint);color:var(--candy-mint)"></span>
+            <span><strong>Guess 3:</strong> Climate + landlocked status</span>
+          </div>
+          <div class="legend-row">
+            <span class="legend-dot" style="background:var(--candy-purple);color:var(--candy-purple)"></span>
+            <span><strong>Guess 4:</strong> Famous sports achievement</span>
+          </div>
+          <div class="legend-row">
+            <span class="legend-dot" style="background:var(--candy-pink);color:var(--candy-pink)"></span>
+            <span><strong>Guess 5:</strong> Continent name</span>
+          </div>
+          <div class="legend-row">
+            <span class="legend-dot" style="background:var(--candy-red);color:var(--candy-red)"></span>
+            <span><strong>Guess 6:</strong> First & last letter + landmark ⚠️</span>
+          </div>
+        </div>
+
+        <!-- Distance Feedback Legend -->
+        <div class="modal-feedback-legend" data-lazy="scale">
+          <h3>📏 Distance Colors</h3>
           <div class="legend-row">
             <span class="legend-dot correct"></span>
-            <span>Correct / Very close (&lt;200 km)</span>
+            <span>Burning hot — under 200 km</span>
           </div>
           <div class="legend-row">
             <span class="legend-dot close"></span>
-            <span>Getting warm (200–1000 km)</span>
+            <span>Getting warm — 200–1,000 km</span>
           </div>
           <div class="legend-row">
             <span class="legend-dot wrong"></span>
-            <span>Far away (1000+ km)</span>
+            <span>Far away — over 1,000 km</span>
           </div>
         </div>
 
-        <div class="modal-news-note">
+        <!-- News note -->
+        <div class="modal-news-note" data-lazy>
           <span>📰</span>
-          <p>Today's country is connected to a real news story. Check the hint banner!</p>
+          <p>Each day's country may be connected to real news. Watch the hint banner at the top!</p>
         </div>
       </div>
 
+      <!-- Modal Footer -->
       <div class="modal-footer">
         <button
           id="close-modal-btn-bottom"
@@ -165,15 +249,18 @@
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════ -->
-  <!-- MAIN GAME WRAPPER                           -->
-  <!-- ═══════════════════════════════════════════ -->
+
+  <!-- ═══════════════════════════════════════════════════
+       MAIN GAME WRAPPER
+       Layout: header → news → map → game-area → sidebar
+       Desktop: CSS Grid  |  Mobile: Flex column
+       ═══════════════════════════════════════════════════ -->
   <div id="game-wrapper">
 
-    <!-- ─────────────────────────────────────── -->
-    <!-- HEADER (sticky)                         -->
-    <!-- Controlled by: game.css sticky styles   -->
-    <!-- ─────────────────────────────────────── -->
+    <!-- ─────────────────────────────────────────
+         HEADER — Candy navigation bar
+         Sticky on mobile, grid-area on desktop
+         ───────────────────────────────────────── -->
     <header id="game-header" role="banner">
       <div class="header-left">
         <a href="/games/" class="header-back" aria-label="Back to games">
@@ -187,22 +274,23 @@
           <span class="header-globe" aria-hidden="true">🌍</span>
           Map Mystery
         </h1>
-        <span id="day-number" class="header-day" aria-label="Game day number">Day #1</span>
+        <span id="day-number" aria-label="Game day number">Day #1</span>
       </div>
 
       <div class="header-right">
-        <!-- Streak Display -->
+        <!-- Streak Badge -->
         <div
           id="streak-display"
           class="streak-badge"
           aria-label="Current streak"
-          title="Your current streak"
+          title="Your winning streak"
+          role="status"
         >
           <span class="streak-fire" aria-hidden="true">🔥</span>
           <span class="streak-count" aria-label="streak count">0</span>
         </div>
 
-        <!-- How to Play -->
+        <!-- How to Play Button -->
         <button
           id="how-to-play-btn"
           class="btn-icon"
@@ -215,19 +303,26 @@
       </div>
     </header>
 
-    <!-- ─────────────────────────────────────── -->
-    <!-- NEWS FACT BANNER                        -->
-    <!-- Controlled by: ui.js → renderNewsFact() -->
-    <!-- ─────────────────────────────────────── -->
-    <div id="news-fact" class="news-banner" role="complementary" aria-label="Today's news hint">
+
+    <!-- ─────────────────────────────────────────
+         NEWS FACT BANNER — Daily candy strip
+         Controlled by: ui.js → renderNewsFact()
+         ───────────────────────────────────────── -->
+    <div
+      id="news-fact"
+      class="news-banner"
+      role="complementary"
+      aria-label="Today's news hint"
+    >
       <span class="news-icon" aria-hidden="true">📰</span>
-      <span class="news-text">Loading today's hint...</span>
+      <span class="news-text">Loading today's hint…</span>
     </div>
 
-    <!-- ─────────────────────────────────────── -->
-    <!-- MAP SECTION                             -->
-    <!-- Controlled by: ui.js → UIController.initMap() -->
-    <!-- ─────────────────────────────────────── -->
+
+    <!-- ─────────────────────────────────────────
+         MAP SECTION — Leaflet dark map
+         Controlled by: ui.js → UIController.initMap()
+         ───────────────────────────────────────── -->
     <section
       id="map-section"
       class="map-section"
@@ -241,27 +336,43 @@
         tabindex="0"
       ></div>
 
-      <!-- Map overlay: attempts remaining pill -->
+      <!-- Map overlay: attempts pill -->
       <div class="map-overlay-top">
         <div
           id="attempts-remaining"
           class="attempts-pill"
           aria-live="polite"
           aria-label="Attempts remaining"
+          role="status"
         >
           6 guesses left
         </div>
       </div>
     </section>
 
-    <!-- ─────────────────────────────────────── -->
-    <!-- GAME AREA (input + attempts)            -->
-    <!-- ─────────────────────────────────────── -->
+
+    <!-- ─────────────────────────────────────────
+         GAME AREA — Input + Attempts + Hints
+         Scrollable on mobile (flex: 1 + overflow)
+         ───────────────────────────────────────── -->
     <main id="game-area" role="main">
 
-      <!-- GUESS INPUT FORM -->
-      <!-- Controlled by: app.js → handleGuessSubmit() -->
-      <!-- Autocomplete: ui.js → UIController.initAutocomplete() -->
+      <!-- ── COLUMN HEADERS (shown after first guess) ── -->
+      <div
+        class="attempt-headers"
+        id="attempt-headers"
+        aria-hidden="true"
+        role="presentation"
+        hidden
+      >
+        <span class="col-header col-country">Country</span>
+        <span class="col-header col-distance">Distance</span>
+        <span class="col-header col-direction">Dir</span>
+        <span class="col-header col-continent">Zone</span>
+        <span class="col-header col-size">Size</span>
+      </div>
+
+      <!-- ── GUESS INPUT FORM ── -->
       <div class="guess-section">
         <form
           id="guess-form"
@@ -276,7 +387,7 @@
               id="guess-input"
               class="guess-input"
               type="text"
-              placeholder="Type a country name..."
+              placeholder="Type a country name…"
               aria-label="Guess a country"
               aria-autocomplete="list"
               aria-controls="autocomplete-list"
@@ -286,6 +397,7 @@
               autocorrect="off"
               autocapitalize="words"
               enterkeyhint="search"
+              inputmode="text"
             />
             <button
               class="input-clear-btn"
@@ -303,7 +415,7 @@
             aria-label="Submit guess"
             id="guess-submit-btn"
           >
-            Guess <span aria-hidden="true">→</span>
+            Guess
           </button>
         </form>
 
@@ -317,47 +429,45 @@
         ></ul>
       </div>
 
-      <!-- ATTEMPTS CONTAINER -->
-      <!-- Controlled by: ui.js → UIController.renderAttemptRow() -->
+      <!-- ── ATTEMPTS CONTAINER ── -->
+      <!--
+        Each guess row rendered by ui.js → renderAttemptRow()
+        Structure per row:
+          .attempt-row
+            .cell-country  (flag + name)
+            .cell-distance (km away from THIS guess)
+            .cell-direction (compass arrow)
+            .cell-continent (zone match)
+            .cell-size     (area comparison)
+            .hint-chips-row (hint chips for this attempt)
+      -->
       <div
         id="attempts-container"
         class="attempts-container"
         role="list"
-        aria-label="Your guesses"
+        aria-label="Your guesses and hints"
         aria-live="polite"
       >
-        <!-- Attempt rows injected here by ui.js -->
-        <!-- Each row is .attempt-row with role="listitem" -->
-
-        <!-- Empty state (shown before any guesses) -->
-        <div class="attempts-empty" id="attempts-empty" aria-hidden="false">
-          <span class="empty-icon">🧭</span>
+        <!-- Empty state (hidden after first guess) -->
+        <div
+          class="attempts-empty"
+          id="attempts-empty"
+          aria-hidden="false"
+          data-lazy
+        >
+          <span class="empty-icon" aria-hidden="true">🧭</span>
           <p>Your guesses will appear here</p>
-          <p class="empty-sub">Start with any country!</p>
+          <p class="empty-sub">Each wrong guess unlocks a new hint!</p>
         </div>
-      </div>
-
-      <!-- COLUMN HEADERS (shown after first guess) -->
-      <div
-        class="attempt-headers"
-        id="attempt-headers"
-        aria-hidden="true"
-        hidden
-      >
-        <span class="col-header col-country">Country</span>
-        <span class="col-header col-distance">Distance</span>
-        <span class="col-header col-direction">Dir.</span>
-        <span class="col-header col-continent">Zone</span>
-        <span class="col-header col-size">Size</span>
       </div>
 
     </main>
 
-    <!-- ─────────────────────────────────────── -->
-    <!-- GAME OVER BANNER                        -->
-    <!-- Controlled by: ui.js → UIController.showGameOver() -->
-    <!-- Hidden by default, shown after game ends -->
-    <!-- ─────────────────────────────────────── -->
+
+    <!-- ─────────────────────────────────────────
+         GAME OVER BANNER — Candy celebration card
+         Controlled by: ui.js → UIController.showGameOver()
+         ───────────────────────────────────────── -->
     <div
       id="game-over-banner"
       class="game-over-banner"
@@ -367,26 +477,29 @@
     >
       <div class="game-over-inner glass-card">
 
-        <!-- Win State -->
+        <!-- ── Win State ── -->
         <div class="game-over-won" id="game-over-won" hidden>
           <div class="game-over-emoji" aria-hidden="true">🎉</div>
           <h2 class="game-over-title">You got it!</h2>
           <p class="game-over-subtitle" id="game-over-win-message">
-            <!-- e.g. "Found in 3/6 tries! Beat 72% of players 🔥" -->
+            <!-- Filled by ui.js: "Found in 3/6 tries!" -->
           </p>
         </div>
 
-        <!-- Lose State -->
+        <!-- ── Lose State ── -->
         <div class="game-over-lost" id="game-over-lost" hidden>
           <div class="game-over-emoji" aria-hidden="true">😅</div>
           <h2 class="game-over-title">So close!</h2>
           <p class="game-over-subtitle">
             The answer was:
-            <strong id="game-over-answer" class="game-over-answer-name"></strong>
+            <strong
+              id="game-over-answer"
+              class="game-over-answer-name"
+            ></strong>
           </p>
         </div>
 
-        <!-- Streak info (shown in both states) -->
+        <!-- Streak (shown in both states) -->
         <div class="game-over-streak" id="game-over-streak-info">
           <span class="streak-fire" aria-hidden="true">🔥</span>
           <span id="game-over-streak-count">0</span>
@@ -401,34 +514,43 @@
             type="button"
             aria-label="Share your result"
           >
-            Share Result 📤
+            Share 📤
           </button>
-
           <a
             id="result-link"
             href="result.html"
             class="btn-secondary"
-            aria-label="See full result and stats"
+            aria-label="See full stats"
           >
-            Full Stats 📊
+            Stats 📊
           </a>
         </div>
 
         <!-- Next game countdown -->
         <div class="next-game-timer">
-          <span class="timer-label">Next mystery in:</span>
-          <span id="next-game-countdown" class="timer-value" aria-live="polite">--:--:--</span>
+          <span class="timer-label">Next mystery in</span>
+          <span
+            id="next-game-countdown"
+            class="timer-value"
+            aria-live="polite"
+            aria-label="Countdown to next game"
+          >--:--:--</span>
         </div>
-
       </div>
     </div>
 
-    <!-- ─────────────────────────────────────── -->
-    <!-- DESKTOP SIDEBAR (stats panel)           -->
-    <!-- Hidden on mobile via CSS               -->
-    <!-- ─────────────────────────────────────── -->
-    <aside id="desktop-sidebar" class="desktop-sidebar" aria-label="Game statistics">
-      <div class="sidebar-card glass-card">
+
+    <!-- ─────────────────────────────────────────
+         DESKTOP SIDEBAR — Candy stats panel
+         Hidden on mobile (CSS: display:none <1280px)
+         ───────────────────────────────────────── -->
+    <aside
+      id="desktop-sidebar"
+      class="desktop-sidebar"
+      aria-label="Game statistics"
+    >
+      <!-- Stats Card -->
+      <div class="sidebar-card glass-card" data-lazy>
         <h3 class="sidebar-title">Your Stats</h3>
         <div class="stat-grid">
           <div class="stat-item">
@@ -450,10 +572,15 @@
         </div>
       </div>
 
-      <div class="sidebar-card glass-card">
+      <!-- Distribution Card -->
+      <div class="sidebar-card glass-card" data-lazy>
         <h3 class="sidebar-title">Guess Distribution</h3>
-        <div id="guess-distribution" class="guess-distribution" aria-label="Guess distribution chart">
-          <!-- Bars rendered by ui.js on game end -->
+        <div
+          id="guess-distribution"
+          class="guess-distribution"
+          aria-label="Guess distribution chart"
+          role="img"
+        >
           <div class="dist-row" data-guess="1">
             <span class="dist-label">1</span>
             <div class="dist-bar-wrap">
@@ -493,18 +620,75 @@
         </div>
       </div>
 
-      <div class="sidebar-card glass-card sidebar-links">
-        <a href="/atlas/" class="sidebar-link">🗺️ World Atlas</a>
-        <a href="/encyclopedia/" class="sidebar-link">📚 Encyclopedia</a>
-        <a href="/games/" class="sidebar-link">🎮 More Games</a>
+      <!-- Hint Legend Card (desktop only) -->
+      <div class="sidebar-card glass-card" data-lazy>
+        <h3 class="sidebar-title">Hint System</h3>
+        <div class="modal-steps" style="gap:6px">
+          <div class="modal-step" style="padding:8px;border:0">
+            <span class="step-icon" style="font-size:18px;width:28px">💡</span>
+            <div class="step-text">
+              <strong style="font-size:12px">Guess 1</strong>
+              <span style="font-size:11px">Fun fact / national animal</span>
+            </div>
+          </div>
+          <div class="modal-step" style="padding:8px;border:0">
+            <span class="step-icon" style="font-size:18px;width:28px">🧭</span>
+            <div class="step-text">
+              <strong style="font-size:12px">Guess 2</strong>
+              <span style="font-size:11px">Direction from guess</span>
+            </div>
+          </div>
+          <div class="modal-step" style="padding:8px;border:0">
+            <span class="step-icon" style="font-size:18px;width:28px">🌡️</span>
+            <div class="step-text">
+              <strong style="font-size:12px">Guess 3</strong>
+              <span style="font-size:11px">Climate + landlocked</span>
+            </div>
+          </div>
+          <div class="modal-step" style="padding:8px;border:0">
+            <span class="step-icon" style="font-size:18px;width:28px">🏆</span>
+            <div class="step-text">
+              <strong style="font-size:12px">Guess 4</strong>
+              <span style="font-size:11px">Sports achievement</span>
+            </div>
+          </div>
+          <div class="modal-step" style="padding:8px;border:0">
+            <span class="step-icon" style="font-size:18px;width:28px">📍</span>
+            <div class="step-text">
+              <strong style="font-size:12px">Guess 5</strong>
+              <span style="font-size:11px">Continent revealed</span>
+            </div>
+          </div>
+          <div class="modal-step" style="padding:8px;border:0">
+            <span class="step-icon" style="font-size:18px;width:28px">🔤</span>
+            <div class="step-text">
+              <strong style="font-size:12px">Guess 6</strong>
+              <span style="font-size:11px">First & last letter ⚠️</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="sidebar-card glass-card sidebar-links" data-lazy>
+        <a href="/atlas/" class="sidebar-link">
+          <span aria-hidden="true">🗺️</span> World Atlas
+        </a>
+        <a href="/encyclopedia/" class="sidebar-link">
+          <span aria-hidden="true">📚</span> Encyclopedia
+        </a>
+        <a href="/games/" class="sidebar-link">
+          <span aria-hidden="true">🎮</span> More Games
+        </a>
       </div>
     </aside>
 
   </div><!-- /#game-wrapper -->
 
-  <!-- ═══════════════════════════════════════════ -->
-  <!-- SERVICE WORKER REGISTRATION                 -->
-  <!-- ═══════════════════════════════════════════ -->
+
+  <!-- ═══════════════════════════════════════════════════
+       SERVICE WORKER
+       ═══════════════════════════════════════════════════ -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
@@ -520,26 +704,39 @@
     }
   </script>
 
-  <!-- ═══════════════════════════════════════════ -->
-  <!-- LEAFLET JS                                  -->
-  <!-- ═══════════════════════════════════════════ -->
+  <!-- ═══════════════════════════════════════════════════
+       LEAFLET JS (loaded before game scripts)
+       ═══════════════════════════════════════════════════ -->
   <script
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV/XN/WLs="
     crossorigin=""
   ></script>
 
-  <!-- ═══════════════════════════════════════════ -->
-  <!-- GAME SCRIPTS (ORDER MATTERS — see dep map)  -->
-  <!-- ═══════════════════════════════════════════ -->
-  <script src="js/data.js"></script>      <!-- 1: window.COUNTRIES, COUNTRY_LOOKUP, COUNTRY_NAMES -->
-  <script src="js/logic.js"></script>     <!-- 2: needs data.js -->
-  <script src="js/state.js"></script>     <!-- 3: needs data.js -->
-  <script src="js/i18n.js"></script>      <!-- 4: no deps -->
-  <script src="js/ui.js"></script>        <!-- 5: needs data.js, state.js -->
-  <script src="js/share.js"></script>     <!-- 6: needs state.js -->
-  <script src="js/streak.js"></script>    <!-- 7: needs state.js -->
-  <script src="js/app.js"></script>       <!-- 8: LAST — needs all above -->
+  <!-- ═══════════════════════════════════════════════════
+       GAME SCRIPTS — ORDER MATTERS (dependency chain)
+
+       1. data.js    → COUNTRIES, COUNTRY_LOOKUP, COUNTRY_NAMES
+                        + hint1_fact, hint4_sports, hint6_landmark,
+                          climate fields per country
+       2. logic.js   → evaluateGuess(), distance calcs (needs data.js)
+       3. state.js   → GameState, getTodayCountry (needs data.js)
+       4. i18n.js    → translations (no deps)
+       5. ui.js      → UIController with renderHints(),
+                        initLazyObserver(), candy-crush styled
+                        rendering (needs data.js, state.js)
+       6. share.js   → share result (needs state.js)
+       7. streak.js  → StreakManager (needs state.js)
+       8. app.js     → init(), event wiring (needs ALL above)
+       ═══════════════════════════════════════════════════ -->
+  <script src="js/data.js"></script>
+  <script src="js/logic.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/share.js"></script>
+  <script src="js/streak.js"></script>
+  <script src="js/app.js"></script>
 
 </body>
 </html>
