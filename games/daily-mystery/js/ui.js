@@ -1,1121 +1,1371 @@
 /* ═══════════════════════════════════════════════════════════
    DHARAVERSE MAP MYSTERY — UI CONTROLLER
    File: /games/daily-mystery/js/ui.js
-   
-   DEPENDS ON: data.js, logic.js (must be loaded first)
-   EXPORTS: window.UI
+
+   DEPENDS ON: data.js, logic.js, state.js, i18n.js
+   USED BY: app.js (calls all UIController methods)
+
+   EXPORTS:
+     window.UIController = {
+       map, markers, initMap(), addGuessMarker(),
+       fitMapBounds(), renderAttemptRow(),
+       updateAttemptsRemaining(), showToast(),
+       showGameOver(), triggerConfetti(),
+       showLoadingScreen(), renderNewsFact(),
+       updateStreakDisplay(), updateDayNumber(),
+       initAutocomplete(), clearInput(),
+       showModal(), restoreGameState(),
+       updateSidebarStats(), updateDistribution(),
+       disableInput(), shakeInput(),
+       renderHints()
+     }
    ═══════════════════════════════════════════════════════════ */
 
-(function() {
+(function () {
   'use strict';
 
-  // ═══════════════════════════════════════════════════════════
-  // TILE PROVIDERS FOR EACH THEME
-  // ═══════════════════════════════════════════════════════════
-  const TILE_PROVIDERS = {
-    galaxy: {
-      url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-      attribution: '© <a href="https://carto.com/">CARTO</a>'
-    },
-    candy: {
-      url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-      attribution: '© <a href="https://carto.com/">CARTO</a>'
-    },
-    ocean: {
-      url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-      attribution: '© <a href="https://carto.com/">CARTO</a>'
-    },
-    jungle: {
-      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      attribution: '© <a href="https://www.esri.com/">Esri</a>'
-    },
-    sunset: {
-      url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-      attribution: '© <a href="https://carto.com/">CARTO</a>'
-    },
-    lemon: {
-      url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-      attribution: '© <a href="https://carto.com/">CARTO</a>'
+  /* ─────────────────────────────────────────────
+     INTERNAL STATE
+     ───────────────────────────────────────────── */
+  var _autocompleteItems = [];
+  var _highlightedIndex  = -1;
+  var _toastQueue        = [];
+  var _confettiTimeout   = null;
+  var _countdownInterval = null;
+
+  /* ─────────────────────────────────────────────
+     TILE LAYER — CartoDB Dark (no key needed)
+     ───────────────────────────────────────────── */
+  var TILE_URL  = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+  var TILE_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>';
+
+  /* ─────────────────────────────────────────────
+     HINT CONFIG — matches SECTION 6 spec
+     ───────────────────────────────────────────── */
+  var HINT_CONFIG = {
+    1: { color: 'hint-blue',   label: '💡 Fun Fact'   },
+    2: { color: 'hint-orange', label: '🧭 Direction'  },
+    3: { color: 'hint-green',  label: '🌡️ Climate'    },
+    4: { color: 'hint-purple', label: '🏆 Sports'     },
+    5: { color: 'hint-pink',   label: '📍 Continent'  },
+    6: { color: 'hint-red',    label: '🔤 Last Clue'  }
+  };
+
+  /* ─────────────────────────────────────────────
+     HELPERS
+     ───────────────────────────────────────────── */
+  function el(id) { return document.getElementById(id); }
+
+  function qs(selector, parent) {
+    return (parent || document).querySelector(selector);
+  }
+
+  function tempClass(element, className, duration) {
+    if (!element) return;
+    element.classList.add(className);
+    setTimeout(function () {
+      if (element) element.classList.remove(className);
+    }, duration || 600);
+  }
+
+  function cleanupAnimation(element, delay) {
+    setTimeout(function () {
+      if (element) element.classList.add('animation-done');
+    }, delay || 600);
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    var d = document.createElement('div');
+    d.appendChild(document.createTextNode(String(str)));
+    return d.innerHTML;
+  }
+
+  /* Make a DOM element shorthand */
+  function make(tag, className, text) {
+    var e = document.createElement(tag);
+    if (className) e.className = className;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+
+  /* ─────────────────────────────────────────────
+     HINT BUILDER
+     Builds hint text for a given hint number
+     using the country data fields from data.js
+     ───────────────────────────────────────────── */
+  function buildHintText(hintNumber, targetCountry, guessedCountry) {
+    if (!targetCountry) return null;
+
+    switch (hintNumber) {
+
+      /* ── HINT 1: Fun fact / national animal / flag ── */
+      case 1:
+        return targetCountry.hint1_fact || null;
+
+      /* ── HINT 2: Direction from guessed → target ── */
+      case 2:
+        if (!guessedCountry) return null;
+        var bearing = _calculateBearing(
+          guessedCountry.lat, guessedCountry.lng,
+          targetCountry.lat,  targetCountry.lng
+        );
+        var dirText = _bearingToDirection(bearing);
+        return '🧭 Head ' + dirText +
+               ' from ' + guessedCountry.name +
+               ' to reach the answer';
+
+      /* ── HINT 3: Climate + Landlocked ── */
+      case 3:
+        var climate  = targetCountry.climate || 'Temperate';
+        var ll       = targetCountry.landlocked;
+        var island   = targetCountry.island;
+        var llText   = ll     ? '🏔️ Landlocked'
+                     : island ? '🏝️ Island nation'
+                     :          '🏖️ Has coastline';
+        var climIcon = _climateIcon(climate);
+        return climIcon + ' ' + climate + ' climate  •  ' + llText;
+
+      /* ── HINT 4: Sports ── */
+      case 4:
+        return targetCountry.hint4_sports || null;
+
+      /* ── HINT 5: Continent ── */
+      case 5:
+        return '📍 Located in ' + targetCountry.continent;
+
+      /* ── HINT 6: First + last letter + landmark ── */
+      case 6:
+        var name    = targetCountry.name;
+        var first   = name.charAt(0).toUpperCase();
+        var last    = name.charAt(name.length - 1).toUpperCase();
+        var dashes  = Array(Math.max(0, name.length - 2)).fill('—').join('');
+        var letters = '🔤 ' + first + ' ' + dashes + ' ' + last;
+        var landmark = targetCountry.hint6_landmark || '';
+        return letters + (landmark ? '\n' + landmark : '');
+
+      default:
+        return null;
     }
-  };
+  }
 
-  // ═══════════════════════════════════════════════════════════
-  // DIRECTION ARROWS (8-point compass)
-  // ═══════════════════════════════════════════════════════════
-  const DIRECTION_ARROWS = {
-    'N': '⬆️',
-    'NE': '↗️',
-    'E': '➡️',
-    'SE': '↘️',
-    'S': '⬇️',
-    'SW': '↙️',
-    'W': '⬅️',
-    'NW': '↖️'
-  };
+  /* Climate icon helper */
+  function _climateIcon(climate) {
+    var map = {
+      'Tropical':     '🌴',
+      'Arid':         '🏜️',
+      'Temperate':    '🌤️',
+      'Continental':  '❄️',
+      'Polar':        '🧊',
+      'Mediterranean':'☀️'
+    };
+    return map[climate] || '🌡️';
+  }
 
-  // ═══════════════════════════════════════════════════════════
-  // UI CONTROLLER
-  // ═══════════════════════════════════════════════════════════
-  const UI = {
-    // References
+  /* Bearing degrees → compass direction */
+  function _bearingToDirection(deg) {
+    var dirs = [
+      'North', 'North-East', 'East', 'South-East',
+      'South', 'South-West', 'West', 'North-West'
+    ];
+    var idx = Math.round(((deg % 360) + 360) % 360 / 45) % 8;
+    return dirs[idx];
+  }
+
+  /* Calculate bearing between two lat/lng points */
+  function _calculateBearing(lat1, lng1, lat2, lng2) {
+    var toRad = function (d) { return d * Math.PI / 180; };
+    var dLng  = toRad(lng2 - lng1);
+    var rLat1 = toRad(lat1);
+    var rLat2 = toRad(lat2);
+    var y = Math.sin(dLng) * Math.cos(rLat2);
+    var x = Math.cos(rLat1) * Math.sin(rLat2) -
+            Math.sin(rLat1) * Math.cos(rLat2) * Math.cos(dLng);
+    var bearing = Math.atan2(y, x) * 180 / Math.PI;
+    return (bearing + 360) % 360;
+  }
+
+  /* ─────────────────────────────────────────────
+     CREATE A HINT CHIP DOM ELEMENT
+     ───────────────────────────────────────────── */
+  function makeHintChip(colorClass, text, isWarning) {
+    var chip = make('span', 'hint-chip ' + (isWarning ? 'hint-warning' : colorClass));
+    chip.textContent = text;
+    chip.setAttribute('data-lazy', 'scale');
+    /* Trigger in-view after paint */
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        chip.classList.add('in-view');
+      });
+    });
+    return chip;
+  }
+
+  /* ─────────────────────────────────────────────
+     CREATE DISTANCE CHIP
+     Shows how far the guessed country is
+     ───────────────────────────────────────────── */
+  function makeDistanceChip(distanceFormatted, directionLabel) {
+    var text = '📏 ' + distanceFormatted;
+    if (directionLabel) text += '  ' + directionLabel;
+    return makeHintChip('hint-distance', text, false);
+  }
+
+
+  /* ══════════════════════════════════════════════════════════
+     UIController — exported to window
+     ══════════════════════════════════════════════════════════ */
+  window.UIController = {
+
+    /** Leaflet map instance */
     map: null,
-    tileLayer: null,
+
+    /** All markers currently on the map */
     markers: [],
-    lines: [],
-    
-    // DOM Elements (cached)
-    elements: {},
-    
-    // State
-    currentTheme: 'galaxy',
-    autocompleteIndex: -1,
-    
-    // ─────────────────────────────────────────────────────────
-    // INITIALIZATION
-    // ─────────────────────────────────────────────────────────
-    init: function() {
-      this.cacheElements();
-      this.loadTheme();
-      this.initMap();
-      this.initAutocomplete();
-      this.initEventListeners();
-      this.updateGuessDots(0);
-      
-      console.log('[UI] Initialized');
+
+    /* ════════════════════════════════════════════
+       1. MAP INIT
+       ID: #game-map
+       Called by: app.js → init()
+       ════════════════════════════════════════════ */
+    initMap: function () {
+      var mapEl = el('game-map');
+      if (!mapEl) { console.error('[ui.js] #game-map not found'); return; }
+
+      this.map = L.map('game-map', {
+        center: [20, 0],
+        zoom: 2,
+        minZoom: 1,
+        maxZoom: 8,
+        zoomControl: true,
+        attributionControl: true,
+        worldCopyJump: false,
+        tap: true,
+        tapTolerance: 15,
+        touchZoom: true,
+        bounceAtZoomLimits: false,
+        doubleClickZoom: false
+      });
+
+      L.tileLayer(TILE_URL, {
+        attribution: TILE_ATTR,
+        subdomains: 'abcd',
+        maxZoom: 19,
+        crossOrigin: true
+      }).addTo(this.map);
+
+      this.map.zoomControl.setPosition('bottomright');
+
+      /* Fix map size after CSS renders (iOS needs this) */
+      var self = this;
+      setTimeout(function () { if (self.map) self.map.invalidateSize(); }, 150);
+      window.addEventListener('resize', function () {
+        if (self.map) self.map.invalidateSize();
+      });
+
+      console.log('[ui.js] Map initialized');
     },
-    
-    // Cache all DOM elements for performance
-    cacheElements: function() {
-      this.elements = {
-        // Containers
-        gameContainer: document.querySelector('.game-container'),
-        mapSection: document.querySelector('.map-section'),
-        mapElement: document.getElementById('game-map'),
-        guessesList: document.querySelector('.guesses-list'),
-        
-        // Input
-        countryInput: document.getElementById('country-input'),
-        submitBtn: document.getElementById('submit-btn'),
-        autocompleteDropdown: document.querySelector('.autocomplete-dropdown'),
-        
-        // Header
-        streakBadge: document.querySelector('.streak-badge'),
-        streakCount: document.querySelector('.streak-count'),
-        themeBtn: document.querySelector('.theme-btn'),
-        
-        // Map overlay
-        guessCounter: document.querySelector('.guess-counter'),
-        guessDots: document.querySelectorAll('.guess-dot'),
-        
-        // Modals
-        resultModal: document.getElementById('result-modal'),
-        themeModal: document.getElementById('theme-modal'),
-        
-        // News ticker
-        newsText: document.querySelector('.news-text')
-      };
+
+
+    /* ════════════════════════════════════════════
+       2. ADD GUESS MARKER
+       Called by: app.js → handleGuessSubmit()
+       ════════════════════════════════════════════ */
+    addGuessMarker: function (lat, lng, label, isCorrect) {
+      if (!this.map) return null;
+
+      var color  = isCorrect ? '#34D399' : '#FB7185';
+      var radius = isCorrect ? 14 : 10;
+
+      var marker = L.circleMarker([lat, lng], {
+        radius:      radius,
+        fillColor:   color,
+        color:       '#ffffff',
+        weight:      2.5,
+        opacity:     1,
+        fillOpacity: 0.92
+      });
+
+      marker.bindPopup(
+        '<strong style="color:#F8FAFC;font-family:Inter,sans-serif;font-size:13px">' +
+        escapeHtml(label) + '</strong>',
+        { className: 'dark-popup', maxWidth: 200 }
+      );
+
+      marker.addTo(this.map);
+      this.markers.push(marker);
+
+      /* Pulse animation */
+      var markerEl = marker.getElement ? marker.getElement() : null;
+      if (markerEl) {
+        markerEl.classList.add(isCorrect ? 'marker-ping-green' : 'marker-ping-red');
+        cleanupAnimation(markerEl, 1200);
+      }
+
+      setTimeout(function () {
+        marker.openPopup();
+        setTimeout(function () { marker.closePopup(); }, 2200);
+      }, 350);
+
+      return marker;
     },
-    
-    // ─────────────────────────────────────────────────────────
-    // MAP INITIALIZATION — CRITICAL MOBILE FIX
-    // ─────────────────────────────────────────────────────────
-    initMap: function() {
-      if (!this.elements.mapElement) {
-        console.error('[UI] Map element not found');
+
+
+    /* ════════════════════════════════════════════
+       3. FIT MAP BOUNDS
+       Called by: app.js → after each guess
+       ════════════════════════════════════════════ */
+    fitMapBounds: function (markers) {
+      if (!this.map || !markers || !markers.length) return;
+
+      if (markers.length === 1) {
+        var pos = markers[0].getLatLng();
+        this.map.setView(pos, 4, { animate: true, duration: 0.9 });
         return;
       }
-      
-      // Destroy existing map if any
-      if (this.map) {
-        this.map.remove();
-        this.map = null;
+
+      var group = L.featureGroup(markers);
+      this.map.fitBounds(group.getBounds(), {
+        padding: [48, 48],
+        animate: true,
+        duration: 0.9,
+        maxZoom: 5
+      });
+    },
+
+
+    /* ════════════════════════════════════════════
+       4. RENDER ATTEMPT ROW
+       ID: #attempts-container
+       Called by: app.js → handleGuessSubmit()
+
+       Layout (5 columns):
+         Country | Distance | Direction | Continent | Size
+
+       Hints shown UNDER the row via .hint-chips-row
+       ════════════════════════════════════════════ */
+    renderAttemptRow: function (evalResult, attemptNumber, targetCountry) {
+      var container = el('attempts-container');
+      if (!container) return;
+
+      /* Hide empty state */
+      var emptyState = el('attempts-empty');
+      if (emptyState) { emptyState.hidden = true; emptyState.setAttribute('aria-hidden', 'true'); }
+
+      /* Show column headers */
+      var headers = el('attempt-headers');
+      if (headers) { headers.hidden = false; headers.removeAttribute('hidden'); }
+
+      /* ── Build row ── */
+      var row = document.createElement('div');
+      row.className = 'attempt-row lazy-load';
+      row.setAttribute('role', 'listitem');
+      row.setAttribute('aria-label',
+        'Guess ' + attemptNumber + ': ' + evalResult.guessName +
+        ', ' + evalResult.distanceFormatted + ' away'
+      );
+      row.setAttribute('data-attempt', attemptNumber);
+
+      if (evalResult.isCorrect)  row.classList.add('correct-row');
+      else if (evalResult.distanceFeedback &&
+               (evalResult.distanceFeedback.tier === 'burning' ||
+                evalResult.distanceFeedback.tier === 'hot')) {
+        row.classList.add('close-row');
       }
-      
-      // Wait for DOM to be ready
-      requestAnimationFrame(() => {
-        // Set explicit height in pixels (mobile fix)
-        const mapHeight = this.elements.mapElement.offsetHeight;
-        if (mapHeight < 100) {
-          this.elements.mapElement.style.height = '200px';
-        }
-        
-        // Initialize map
-        this.map = L.map('game-map', {
-          center: [20, 0],
-          zoom: 2,
-          minZoom: 1,
-          maxZoom: 8,
-          zoomControl: true,
-          scrollWheelZoom: false,    // Prevent scroll hijacking on mobile
-          dragging: true,
-          tap: true,                  // iOS touch support
-          touchZoom: true,
-          doubleClickZoom: true,
-          attributionControl: true
+
+      /* ── Cell 1: Country Flag + Name ── */
+      var cellCountry = make('div', 'attempt-cell cell-country');
+
+      var flagEl  = make('span', 'cell-flag');
+      flagEl.setAttribute('aria-hidden', 'true');
+      flagEl.textContent = evalResult.guessFlag || '🏳️';
+
+      var nameWrap = make('div', 'cell-name-wrap');
+      var nameLabel = make('span', 'cell-label', evalResult.guessName);
+      nameLabel.title = evalResult.guessName;
+
+      /* Subregion as subtle sub-label */
+      var guessData = window.COUNTRY_LOOKUP
+        ? window.COUNTRY_LOOKUP[evalResult.guessId]
+        : null;
+      if (guessData && guessData.subregion) {
+        var subLabel = make('span', 'cell-sub', guessData.subregion);
+        nameWrap.appendChild(nameLabel);
+        nameWrap.appendChild(subLabel);
+      } else {
+        nameWrap.appendChild(nameLabel);
+      }
+
+      cellCountry.appendChild(flagEl);
+      cellCountry.appendChild(nameWrap);
+
+      /* ── Cell 2: Distance ── */
+      var distColor = evalResult.distanceFeedback
+        ? 'cell-' + evalResult.distanceFeedback.color
+        : 'cell-wrong';
+
+      var cellDistance = make('div', 'attempt-cell cell-distance ' + distColor + ' flip-in flip-delay-1');
+
+      var distEmoji = make('span', 'cell-emoji');
+      distEmoji.setAttribute('aria-hidden', 'true');
+      distEmoji.textContent = (evalResult.distanceFeedback && evalResult.distanceFeedback.emoji)
+        ? evalResult.distanceFeedback.emoji : '📏';
+
+      var distLabel = make('span', 'cell-label', evalResult.distanceFormatted);
+      var distSub   = make('span', 'cell-sub',
+        evalResult.distanceFeedback ? evalResult.distanceFeedback.label : '');
+
+      cellDistance.appendChild(distEmoji);
+      cellDistance.appendChild(distLabel);
+      cellDistance.appendChild(distSub);
+
+      /* ── Cell 3: Direction Arrow ── */
+      var cellDirection = make('div', 'attempt-cell cell-direction flip-in flip-delay-2');
+
+      var arrowEl = make('span', 'cell-emoji arrow-spin');
+      if (evalResult.bearingRotation !== undefined) {
+        arrowEl.style.setProperty('--arrow-rotation', evalResult.bearingRotation + 'deg');
+      }
+      arrowEl.setAttribute('aria-label', 'Direction: ' + (evalResult.direction || ''));
+      arrowEl.textContent = evalResult.arrow || '➡️';
+
+      var dirSub = make('span', 'cell-sub');
+      dirSub.setAttribute('aria-hidden', 'true');
+      /* Show two-letter compass e.g. "SE" */
+      var dirShort = (evalResult.direction || '').replace('-', '').toUpperCase().substring(0, 2);
+      dirSub.textContent = dirShort;
+
+      cellDirection.appendChild(arrowEl);
+      cellDirection.appendChild(dirSub);
+
+      /* ── Cell 4: Continent Match ── */
+      var contColor = evalResult.continentMatch
+        ? 'cell-' + evalResult.continentMatch.color
+        : 'cell-wrong';
+
+      var cellContinent = make('div', 'attempt-cell cell-continent ' + contColor + ' flip-in flip-delay-3');
+
+      var contEmoji = make('span', 'cell-emoji');
+      contEmoji.setAttribute('aria-label',
+        'Continent: ' + (evalResult.continentMatch ? evalResult.continentMatch.message : ''));
+      contEmoji.textContent = evalResult.continentMatch
+        ? evalResult.continentMatch.emoji : '🌍';
+
+      cellContinent.appendChild(contEmoji);
+
+      /* ── Cell 5: Size Comparison ── */
+      var sizeClass = 'cell-wrong';
+      if (evalResult.sizeComparison) {
+        if (evalResult.sizeComparison.type === 'same') sizeClass = 'cell-correct';
+        else if (evalResult.sizeComparison.ratio < 2)  sizeClass = 'cell-close';
+      }
+
+      var cellSize = make('div', 'attempt-cell cell-size flip-in flip-delay-4 ' + sizeClass);
+
+      var sizeEmoji = make('span', 'cell-emoji');
+      sizeEmoji.setAttribute('aria-hidden', 'true');
+      sizeEmoji.textContent = evalResult.sizeComparison
+        ? evalResult.sizeComparison.emoji : '📐';
+
+      var sizeSub = make('span', 'cell-sub');
+      if (evalResult.sizeComparison && evalResult.sizeComparison.type !== 'same') {
+        sizeSub.textContent =
+          (evalResult.sizeComparison.type === 'bigger' ? '▲' : '▼') +
+          evalResult.sizeComparison.ratio + 'x';
+      } else {
+        sizeSub.textContent = '≈';
+      }
+
+      cellSize.appendChild(sizeEmoji);
+      cellSize.appendChild(sizeSub);
+
+      /* ── Assemble main cells ── */
+      row.appendChild(cellCountry);
+      row.appendChild(cellDistance);
+      row.appendChild(cellDirection);
+      row.appendChild(cellContinent);
+      row.appendChild(cellSize);
+
+      /* ── Hint chips row (unlocked after this guess) ── */
+      this._appendHintChips(row, attemptNumber, evalResult, targetCountry);
+
+      /* ── Append + lazy-load fade-in ── */
+      container.appendChild(row);
+
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          row.classList.add('loaded');
         });
-        
-        // Add tile layer
-        this.setMapTiles(this.currentTheme);
-        
-        // CRITICAL: Force map to recalculate size
-        setTimeout(() => {
-          this.map.invalidateSize();
-        }, 100);
-        
-        // Also invalidate on window resize
-        window.addEventListener('resize', () => {
-          if (this.map) {
-            this.map.invalidateSize();
+      });
+
+      /* Cleanup flip animations */
+      var flips = row.querySelectorAll('.flip-in');
+      for (var f = 0; f < flips.length; f++) {
+        cleanupAnimation(flips[f], 900 + f * 80);
+      }
+
+      /* Scroll newest row into view */
+      setTimeout(function () {
+        row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 220);
+    },
+
+
+    /* ════════════════════════════════════════════
+       RENDER HINT CHIPS (internal)
+       Appends hint chips below the attempt row.
+
+       Hint unlocks:
+         After guess 1 → hint 1 shown on row 1
+         After guess 2 → hint 2 shown on row 2
+         etc.
+       ════════════════════════════════════════════ */
+    _appendHintChips: function (row, attemptNumber, evalResult, targetCountry) {
+      /* We only show the hint for THIS attempt number.
+         All previous hints remain on their own rows (already rendered). */
+
+      var hintNumber = attemptNumber; /* hint N unlocks after guess N */
+      if (hintNumber < 1 || hintNumber > 6) return;
+
+      var chipsRow = make('div', 'hint-chips-row');
+      chipsRow.setAttribute('data-hint', hintNumber);
+      chipsRow.style.setProperty('--chip-delay', (hintNumber * 120) + 'ms');
+
+      var cfg = HINT_CONFIG[hintNumber];
+      if (!cfg) return;
+
+      /* ── Distance chip (always shown, changes per guess) ── */
+      if (!evalResult.isCorrect && evalResult.distanceFormatted) {
+        var dirLabel = evalResult.direction
+          ? '↗ ' + evalResult.direction
+          : '';
+        chipsRow.appendChild(makeDistanceChip(evalResult.distanceFormatted, dirLabel));
+      }
+
+      /* ── Hint-specific chip ── */
+      var hintText = buildHintText(
+        hintNumber,
+        targetCountry,
+        guessDataFor(evalResult.guessId)
+      );
+
+      if (!hintText) {
+        /* No hint available → skip */
+        if (!chipsRow.childElementCount) return;
+      } else {
+
+        /* Hint 6 has two lines: letter pattern + landmark */
+        if (hintNumber === 6) {
+          var lines = hintText.split('\n');
+
+          /* Letter pattern chip */
+          var letterChip = makeHintChip(cfg.color, lines[0], false);
+          chipsRow.appendChild(letterChip);
+
+          /* Landmark chip */
+          if (lines[1]) {
+            var landmarkChip = makeHintChip('hint-gold', lines[1], false);
+            chipsRow.appendChild(landmarkChip);
           }
-        });
-        
-        // Invalidate when orientation changes (mobile)
-        window.addEventListener('orientationchange', () => {
-          setTimeout(() => {
-            if (this.map) {
-              this.map.invalidateSize();
-            }
-          }, 200);
-        });
-        
-        console.log('[UI] Map initialized');
-      });
-    },
-    
-    // Set map tiles based on theme
-    setMapTiles: function(theme) {
-      if (!this.map) return;
-      
-      const provider = TILE_PROVIDERS[theme] || TILE_PROVIDERS.galaxy;
-      
-      // Remove old tile layer
-      if (this.tileLayer) {
-        this.map.removeLayer(this.tileLayer);
-      }
-      
-      // Add new tile layer
-      this.tileLayer = L.tileLayer(provider.url, {
-        attribution: provider.attribution,
-        maxZoom: 18,
-        subdomains: 'abcd'
-      }).addTo(this.map);
-    },
-    
-    // ─────────────────────────────────────────────────────────
-    // AUTOCOMPLETE
-    // ─────────────────────────────────────────────────────────
-    initAutocomplete: function() {
-      const input = this.elements.countryInput;
-      const dropdown = this.elements.autocompleteDropdown;
-      
-      if (!input || !dropdown) return;
-      
-      // Input event — show suggestions
-      input.addEventListener('input', (e) => {
-        const query = e.target.value.trim();
-        
-        if (query.length < 2) {
-          this.hideAutocomplete();
-          return;
+
+          /* Warning chip */
+          var warnChip = makeHintChip('', '⚠️ LAST CHANCE — Think hard!', true);
+          chipsRow.appendChild(warnChip);
+
+        } else if (hintNumber === 3) {
+          /* Hint 3: two chips — climate + landlocked */
+          var parts = hintText.split('  •  ');
+          parts.forEach(function (p, idx) {
+            var chipClass = idx === 0 ? 'hint-blue' : 'hint-green';
+            chipsRow.appendChild(makeHintChip(chipClass, p.trim(), false));
+          });
+
+        } else {
+          /* Standard single chip */
+          var isWarningHint = false;
+          var mainChip = makeHintChip(cfg.color, hintText, isWarningHint);
+          chipsRow.appendChild(mainChip);
         }
-        
-        const matches = window.searchCountry(query);
-        this.showAutocomplete(matches.slice(0, 8)); // Max 8 results
+      }
+
+      /* Only append if we have chips */
+      if (chipsRow.childElementCount > 0) {
+        /* Span full row width */
+        chipsRow.style.gridColumn = '1 / -1';
+        row.appendChild(chipsRow);
+      }
+    },
+
+
+    /* ════════════════════════════════════════════
+       5. UPDATE ATTEMPTS REMAINING
+       ID: #attempts-remaining
+       Called by: app.js → after each guess
+       ════════════════════════════════════════════ */
+    updateAttemptsRemaining: function (n) {
+      var remainEl = el('attempts-remaining');
+      if (!remainEl) return;
+
+      var text;
+      if (window.i18n) {
+        if (n === 1)      text = window.i18n.t('attempts_left_one');
+        else if (n === 0) text = window.i18n.t('attempts_left_zero');
+        else              text = window.i18n.t('attempts_left', { n: n });
+      } else {
+        text = n === 1 ? '1 guess left!' : n + ' guesses left';
+      }
+
+      remainEl.textContent = text;
+      tempClass(remainEl, 'pop-in', 400);
+
+      /* Color coding */
+      remainEl.style.color = '';
+      if (n <= 0)      remainEl.style.color = 'var(--candy-red)';
+      else if (n === 1) remainEl.style.color = 'var(--candy-red)';
+      else if (n === 2) remainEl.style.color = 'var(--game-yellow)';
+    },
+
+
+    /* ════════════════════════════════════════════
+       6. SHOW TOAST
+       ID: #toast-container
+       Called by: app.js → various events
+       ════════════════════════════════════════════ */
+    showToast: function (message, type, duration) {
+      var container = el('toast-container');
+      if (!container) return;
+
+      type     = type     || 'info';
+      duration = duration || 3200;
+
+      var toast = make('div', 'toast ' + type);
+      toast.setAttribute('role', 'alert');
+      toast.setAttribute('aria-live', 'polite');
+      toast.textContent = message;
+
+      container.appendChild(toast);
+      _toastQueue.push(toast);
+
+      var removeToast = function () {
+        toast.classList.add('removing');
+        setTimeout(function () {
+          if (toast.parentNode) toast.parentNode.removeChild(toast);
+          var idx = _toastQueue.indexOf(toast);
+          if (idx > -1) _toastQueue.splice(idx, 1);
+        }, 320);
+      };
+
+      var timer = setTimeout(removeToast, duration);
+      toast.addEventListener('click', function () { clearTimeout(timer); removeToast(); });
+
+      /* Max 3 toasts at once */
+      while (_toastQueue.length > 3) {
+        var oldest = _toastQueue.shift();
+        if (oldest && oldest.parentNode) oldest.parentNode.removeChild(oldest);
+      }
+    },
+
+
+    /* ════════════════════════════════════════════
+       7. SHOW GAME OVER BANNER
+       ID: #game-over-banner
+       Called by: app.js → handleGameEnd()
+       ════════════════════════════════════════════ */
+    showGameOver: function (won, answer) {
+      var banner = el('game-over-banner');
+      if (!banner) return;
+
+      banner.hidden = false;
+      banner.removeAttribute('hidden');
+
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          banner.classList.add('visible');
+        });
       });
-      
-      // Keyboard navigation
-      input.addEventListener('keydown', (e) => {
-        const items = dropdown.querySelectorAll('.autocomplete-item');
-        
+
+      if (won) {
+        var wonPanel = el('game-over-won');
+        if (wonPanel) {
+          wonPanel.hidden = false;
+          wonPanel.removeAttribute('hidden');
+          tempClass(wonPanel, 'bounce-in', 800);
+        }
+
+        var winMsg = el('game-over-win-message');
+        if (winMsg && window.i18n) {
+          var numGuesses = window.GameState ? window.GameState.guesses.length : 1;
+          winMsg.textContent = window.i18n.t('correct_message', { n: numGuesses });
+        }
+
+        this.triggerConfetti();
+        document.body.classList.add('game-won');
+
+      } else {
+        var lostPanel = el('game-over-lost');
+        if (lostPanel) {
+          lostPanel.hidden = false;
+          lostPanel.removeAttribute('hidden');
+          tempClass(lostPanel, 'bounce-in', 800);
+        }
+
+        /* Reveal answer with flag */
+        var answerEl = el('game-over-answer');
+        if (answerEl && answer) {
+          answerEl.textContent = answer.flag + ' ' + answer.name;
+          tempClass(answerEl, 'pop-in', 600);
+        }
+
+        document.body.classList.add('game-lost');
+      }
+
+      /* Streak counter in banner */
+      var streakCountEl = el('game-over-streak-count');
+      if (streakCountEl && window.StreakManager) {
+        streakCountEl.textContent = window.StreakManager.data.current;
+        tempClass(streakCountEl, 'number-tick', 500);
+      }
+
+      /* Share button wiggle */
+      var shareBtn = el('share-btn');
+      if (shareBtn) tempClass(shareBtn, 'wiggle', 2000);
+
+      /* Start countdown */
+      this._startCountdown();
+
+      /* Update sidebar */
+      if (window.GameState) {
+        this.updateSidebarStats();
+        this.updateDistribution();
+      }
+    },
+
+
+    /* ════════════════════════════════════════════
+       COUNTDOWN TIMER (internal)
+       ID: #next-game-countdown
+       ════════════════════════════════════════════ */
+    _startCountdown: function () {
+      var countdownEl = el('next-game-countdown');
+      if (!countdownEl) return;
+
+      if (_countdownInterval) clearInterval(_countdownInterval);
+
+      var updateTimer = function () {
+        var ms = window.getMillisUntilNextGame
+          ? window.getMillisUntilNextGame()
+          : 0;
+        var formatted = window.formatCountdown
+          ? window.formatCountdown(ms)
+          : '00:00:00';
+        countdownEl.textContent = formatted;
+        if (ms <= 0) {
+          clearInterval(_countdownInterval);
+          countdownEl.textContent = '00:00:00';
+        }
+      };
+
+      updateTimer();
+      _countdownInterval = setInterval(updateTimer, 1000);
+    },
+
+
+    /* ════════════════════════════════════════════
+       8. CONFETTI — Candy-crush celebration
+       Called by: showGameOver(true)
+       ════════════════════════════════════════════ */
+    triggerConfetti: function () {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      /* Burst flash */
+      var burst = make('div', 'celebration-burst');
+      document.body.appendChild(burst);
+      setTimeout(function () { if (burst.parentNode) burst.parentNode.removeChild(burst); }, 1200);
+
+      /* Container */
+      var container = make('div', 'confetti-container');
+      document.body.appendChild(container);
+
+      /* Candy palette */
+      var colors = [
+        '#A855F7','#F472B6','#34D399','#FBBF24',
+        '#60A5FA','#FB7185','#10B981','#F59E0B',
+        '#C084FC','#22D3EE','#ffffff'
+      ];
+      var shapes = ['confetti-square', 'confetti-circle', 'confetti-strip'];
+      var sways  = ['confetti-sway-left', 'confetti-sway-right', ''];
+
+      for (var i = 0; i < 90; i++) {
+        var piece = make('div',
+          'confetti-piece ' +
+          shapes[Math.floor(Math.random() * shapes.length)] + ' ' +
+          sways[Math.floor(Math.random() * sways.length)]
+        );
+
+        piece.style.left = (Math.random() * 100) + 'vw';
+
+        var size = 6 + Math.random() * 9;
+        piece.style.width  = size + 'px';
+        piece.style.height = piece.className.indexOf('confetti-strip') !== -1
+          ? (size * 2.5) + 'px'
+          : size + 'px';
+
+        piece.style.backgroundColor =
+          colors[Math.floor(Math.random() * colors.length)];
+
+        piece.style.setProperty('--confetti-duration', (2 + Math.random() * 2.5) + 's');
+        piece.style.setProperty('--confetti-delay',    (Math.random() * 1.8) + 's');
+
+        container.appendChild(piece);
+      }
+
+      if (_confettiTimeout) clearTimeout(_confettiTimeout);
+      _confettiTimeout = setTimeout(function () {
+        if (container.parentNode) container.parentNode.removeChild(container);
+      }, 7000);
+    },
+
+
+    /* ════════════════════════════════════════════
+       9. LOADING SCREEN
+       ID: #loading-screen
+       Called by: app.js → init()
+       ════════════════════════════════════════════ */
+    showLoadingScreen: function (show) {
+      var screen = el('loading-screen');
+      if (!screen) return;
+
+      if (show) {
+        screen.hidden = false;
+        screen.removeAttribute('hidden');
+        screen.classList.remove('hide');
+      } else {
+        screen.classList.add('hide');
+        setTimeout(function () { screen.hidden = true; }, 500);
+      }
+    },
+
+
+    /* ════════════════════════════════════════════
+       10. RENDER NEWS FACT BANNER
+       ID: #news-fact .news-text
+       Called by: app.js → loadDailyFact()
+       ════════════════════════════════════════════ */
+    renderNewsFact: function (factText) {
+      var newsEl = el('news-fact');
+      if (!newsEl) return;
+
+      var textEl = qs('.news-text', newsEl);
+      if (!textEl) return;
+
+      var text = factText ||
+        (window.i18n ? window.i18n.t('news_fallback') : 'Today\'s geography mystery awaits!');
+
+      textEl.style.opacity = '0';
+      textEl.textContent   = text;
+
+      requestAnimationFrame(function () {
+        textEl.style.transition = 'opacity 0.45s ease';
+        textEl.style.opacity    = '1';
+      });
+    },
+
+
+    /* ════════════════════════════════════════════
+       11. UPDATE STREAK DISPLAY
+       ID: #streak-display .streak-count
+       Called by: app.js → after streak.update()
+       ════════════════════════════════════════════ */
+    updateStreakDisplay: function (streakData) {
+      var countEl = qs('#streak-display .streak-count');
+      if (!countEl) return;
+
+      var newCount = streakData ? streakData.current : 0;
+      var oldCount = parseInt(countEl.textContent, 10) || 0;
+
+      countEl.textContent = newCount;
+
+      if (newCount > oldCount) {
+        tempClass(countEl, 'number-tick', 500);
+        tempClass(el('streak-display'), 'streak-glow', 1600);
+      }
+    },
+
+
+    /* ════════════════════════════════════════════
+       12. UPDATE DAY NUMBER
+       ID: #day-number
+       Called by: app.js → init()
+       ════════════════════════════════════════════ */
+    updateDayNumber: function (n) {
+      var dayEl = el('day-number');
+      if (!dayEl) return;
+      dayEl.textContent = window.i18n
+        ? window.i18n.t('day_label', { n: n })
+        : 'Day #' + n;
+    },
+
+
+    /* ════════════════════════════════════════════
+       13. AUTOCOMPLETE
+       IDs: #guess-input, #autocomplete-list, #input-clear-btn
+       Called by: app.js → init()
+       ════════════════════════════════════════════ */
+    initAutocomplete: function () {
+      var input    = el('guess-input');
+      var list     = el('autocomplete-list');
+      var clearBtn = el('input-clear-btn');
+      var form     = el('guess-form');
+
+      if (!input || !list) return;
+
+      var self = this;
+
+      /* ── Input ── */
+      input.addEventListener('input', function () {
+        var query = input.value.trim();
+        if (clearBtn) clearBtn.hidden = query.length === 0;
+
+        if (query.length < 1) { self._hideAutocomplete(list, input); return; }
+
+        _autocompleteItems = self._filterCountries(query);
+        _highlightedIndex  = -1;
+
+        if (!_autocompleteItems.length) { self._hideAutocomplete(list, input); return; }
+        self._renderAutocomplete(list, input, _autocompleteItems, query);
+      });
+
+      /* ── Keyboard ── */
+      input.addEventListener('keydown', function (e) {
+        var isOpen = !list.hidden;
+
         if (e.key === 'ArrowDown') {
           e.preventDefault();
-          this.autocompleteIndex = Math.min(this.autocompleteIndex + 1, items.length - 1);
-          this.highlightAutocompleteItem(items);
+          if (!isOpen) {
+            _autocompleteItems = self._filterCountries(input.value.trim() || '');
+            if (_autocompleteItems.length) {
+              _highlightedIndex = -1;
+              self._renderAutocomplete(list, input, _autocompleteItems, input.value.trim());
+            }
+          } else {
+            _highlightedIndex = Math.min(_highlightedIndex + 1, _autocompleteItems.length - 1);
+            self._updateHighlight(list);
+          }
         } else if (e.key === 'ArrowUp') {
           e.preventDefault();
-          this.autocompleteIndex = Math.max(this.autocompleteIndex - 1, 0);
-          this.highlightAutocompleteItem(items);
+          if (isOpen) {
+            _highlightedIndex = Math.max(_highlightedIndex - 1, -1);
+            self._updateHighlight(list);
+          }
         } else if (e.key === 'Enter') {
-          e.preventDefault();
-          if (this.autocompleteIndex >= 0 && items[this.autocompleteIndex]) {
-            this.selectCountry(items[this.autocompleteIndex].dataset.id);
-          } else if (items.length === 1) {
-            this.selectCountry(items[0].dataset.id);
+          if (isOpen && _highlightedIndex >= 0) {
+            e.preventDefault();
+            var selected = _autocompleteItems[_highlightedIndex];
+            if (selected) {
+              input.value = selected.name;
+              self._hideAutocomplete(list, input);
+              if (form) form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+            }
           }
         } else if (e.key === 'Escape') {
-          this.hideAutocomplete();
-        }
-      });
-      
-      // Focus event
-      input.addEventListener('focus', () => {
-        if (input.value.length >= 2) {
-          const matches = window.searchCountry(input.value);
-          this.showAutocomplete(matches.slice(0, 8));
-        }
-      });
-      
-      // Click outside to close
-      document.addEventListener('click', (e) => {
-        if (!e.target.closest('.input-wrapper')) {
-          this.hideAutocomplete();
-        }
-      });
-    },
-    
-    showAutocomplete: function(countries) {
-      const dropdown = this.elements.autocompleteDropdown;
-      if (!dropdown) return;
-      
-      if (countries.length === 0) {
-        this.hideAutocomplete();
-        return;
-      }
-      
-      dropdown.innerHTML = countries.map(c => `
-        <div class="autocomplete-item" data-id="${c.id}">
-          <span class="autocomplete-flag">${c.flag}</span>
-          <span class="autocomplete-name">${c.name}</span>
-        </div>
-      `).join('');
-      
-      // Add click listeners
-      dropdown.querySelectorAll('.autocomplete-item').forEach(item => {
-        item.addEventListener('click', () => {
-          this.selectCountry(item.dataset.id);
-        });
-      });
-      
-      dropdown.classList.add('active');
-      this.autocompleteIndex = -1;
-    },
-    
-    hideAutocomplete: function() {
-      if (this.elements.autocompleteDropdown) {
-        this.elements.autocompleteDropdown.classList.remove('active');
-        this.elements.autocompleteDropdown.innerHTML = '';
-      }
-      this.autocompleteIndex = -1;
-    },
-    
-    highlightAutocompleteItem: function(items) {
-      items.forEach((item, index) => {
-        item.classList.toggle('highlighted', index === this.autocompleteIndex);
-      });
-      
-      // Scroll into view
-      if (items[this.autocompleteIndex]) {
-        items[this.autocompleteIndex].scrollIntoView({ block: 'nearest' });
-      }
-    },
-    
-    selectCountry: function(countryId) {
-      const country = window.COUNTRY_LOOKUP[countryId];
-      if (!country) return;
-      
-      this.elements.countryInput.value = country.name;
-      this.elements.countryInput.dataset.selectedId = countryId;
-      this.hideAutocomplete();
-      
-      // Focus submit button
-      if (this.elements.submitBtn) {
-        this.elements.submitBtn.focus();
-      }
-    },
-    
-    // ─────────────────────────────────────────────────────────
-    // EVENT LISTENERS
-    // ─────────────────────────────────────────────────────────
-    initEventListeners: function() {
-      // Submit button
-      if (this.elements.submitBtn) {
-        this.elements.submitBtn.addEventListener('click', () => {
-          this.handleSubmit();
-        });
-      }
-      
-      // Theme button
-      if (this.elements.themeBtn) {
-        this.elements.themeBtn.addEventListener('click', () => {
-          this.showThemeModal();
-        });
-      }
-      
-      // Enter key on input
-      if (this.elements.countryInput) {
-        this.elements.countryInput.addEventListener('keypress', (e) => {
-          if (e.key === 'Enter' && !this.elements.autocompleteDropdown.classList.contains('active')) {
-            this.handleSubmit();
+          self._hideAutocomplete(list, input);
+          input.value = '';
+          if (clearBtn) clearBtn.hidden = true;
+        } else if (e.key === 'Tab') {
+          if (isOpen && _highlightedIndex >= 0) {
+            var tabSel = _autocompleteItems[_highlightedIndex];
+            if (tabSel) { input.value = tabSel.name; self._hideAutocomplete(list, input); }
           }
+        }
+      });
+
+      /* ── Close on outside interaction ── */
+      document.addEventListener('click', function (e) {
+        if (!input.contains(e.target) && !list.contains(e.target))
+          self._hideAutocomplete(list, input);
+      });
+      document.addEventListener('touchstart', function (e) {
+        if (!input.contains(e.target) && !list.contains(e.target))
+          self._hideAutocomplete(list, input);
+      }, { passive: true });
+
+      /* ── Clear button ── */
+      if (clearBtn) {
+        clearBtn.addEventListener('click', function () {
+          input.value = '';
+          clearBtn.hidden = true;
+          self._hideAutocomplete(list, input);
+          input.focus();
         });
       }
+
+      console.log('[ui.js] Autocomplete initialized');
     },
-    
-    handleSubmit: function() {
-      const input = this.elements.countryInput;
-      const countryId = input.dataset.selectedId;
-      
-      if (!countryId) {
-        // Try to find country by name
-        const matches = window.searchCountry(input.value.trim());
-        if (matches.length === 1) {
-          input.dataset.selectedId = matches[0].id;
-          this.handleSubmit();
-          return;
-        } else if (matches.length > 1) {
-          this.showAutocomplete(matches.slice(0, 8));
-          return;
+
+    _filterCountries: function (query) {
+      if (!query) return [];
+      var q       = query.toLowerCase().trim();
+      var starts  = [];
+      var contains= [];
+
+      for (var i = 0; i < window.COUNTRIES.length; i++) {
+        var c    = window.COUNTRIES[i];
+        var name = c.name.toLowerCase();
+        if (name.startsWith(q))          starts.push(c);
+        else if (name.indexOf(q) !== -1) contains.push(c);
+        if (starts.length + contains.length >= 10) break;
+      }
+
+      return starts.concat(contains).slice(0, 8);
+    },
+
+    _renderAutocomplete: function (list, input, items, query) {
+      list.innerHTML = '';
+      list.hidden    = false;
+      list.removeAttribute('hidden');
+      input.setAttribute('aria-expanded', 'true');
+
+      var self = this;
+      var q    = query.toLowerCase();
+
+      items.forEach(function (country, i) {
+        var li = make('li', 'autocomplete-item');
+        li.setAttribute('role', 'option');
+        li.setAttribute('data-index', i);
+        li.setAttribute('data-id', country.id);
+
+        var flagSpan = make('span', 'autocomplete-flag');
+        flagSpan.setAttribute('aria-hidden', 'true');
+        flagSpan.textContent = country.flag;
+
+        var nameSpan   = make('span', 'autocomplete-name');
+        var nameLower  = country.name.toLowerCase();
+        var matchIdx   = nameLower.indexOf(q);
+
+        if (matchIdx !== -1 && q.length > 0) {
+          var before = escapeHtml(country.name.substring(0, matchIdx));
+          var match  = escapeHtml(country.name.substring(matchIdx, matchIdx + q.length));
+          var after  = escapeHtml(country.name.substring(matchIdx + q.length));
+          nameSpan.innerHTML = before + '<mark>' + match + '</mark>' + after;
         } else {
-          this.shakeInput();
-          return;
+          nameSpan.textContent = country.name;
         }
-      }
-      
-      // Dispatch custom event for game logic to handle
-      const event = new CustomEvent('guess-submitted', {
-        detail: { countryId: countryId }
-      });
-      document.dispatchEvent(event);
-      
-      // Clear input
-      input.value = '';
-      input.dataset.selectedId = '';
-    },
-    
-    shakeInput: function() {
-      const input = this.elements.countryInput;
-      if (!input) return;
-      
-      input.style.animation = 'none';
-      input.offsetHeight; // Trigger reflow
-      input.style.animation = 'shake 0.5s ease';
-      
-      setTimeout(() => {
-        input.style.animation = '';
-      }, 500);
-    },
-    
-    // ─────────────────────────────────────────────────────────
-    // GUESS RENDERING
-    // ─────────────────────────────────────────────────────────
-    
-    /**
-     * Add a guess row to the UI
-     * @param {Object} guessData - { guessedCountry, targetCountry, distance, bearing, direction, guessNumber, isCorrect }
-     */
-    addGuessRow: function(guessData) {
-      const { guessedCountry, targetCountry, distance, bearing, direction, guessNumber, isCorrect } = guessData;
-      
-      // Get distance color class
-      const distanceClass = this.getDistanceClass(distance);
-      
-      // Build hint chips based on guess number
-      const hintsHtml = this.buildHintChips(guessNumber, targetCountry, guessedCountry, direction);
-      
-      // Create guess card HTML
-      const cardHtml = `
-        <div class="guess-card ${distanceClass} ${isCorrect ? 'correct' : ''}" data-guess="${guessNumber}">
-          <div class="guess-main">
-            <span class="guess-flag">${guessedCountry.flag}</span>
-            <div class="guess-info">
-              <div class="guess-country">${guessedCountry.name}</div>
-              <div class="guess-meta">
-                <span>Guess #${guessNumber}</span>
-              </div>
-            </div>
-            <div class="guess-distance">
-              <div class="distance-value ${isCorrect ? 'correct' : ''}" style="color: var(--distance-color);">
-                ${isCorrect ? '🎯 CORRECT!' : this.formatDistance(distance)}
-              </div>
-              ${!isCorrect ? `
-                <div class="direction-arrow animate" style="transform: rotate(${bearing}deg);" title="${direction}">
-                  🧭
-                </div>
-              ` : ''}
-            </div>
-          </div>
-          
-          ${!isCorrect ? `
-            <div class="distance-meter">
-              <div class="distance-meter-fill" style="width: ${this.getDistancePercent(distance)}%; background: var(--distance-color);"></div>
-            </div>
-          ` : ''}
-          
-          ${hintsHtml ? `<div class="hints-row">${hintsHtml}</div>` : ''}
-        </div>
-      `;
-      
-      // Add to list
-      if (this.elements.guessesList) {
-        this.elements.guessesList.insertAdjacentHTML('beforeend', cardHtml);
-        
-        // Scroll to new card
-        const newCard = this.elements.guessesList.lastElementChild;
-        if (newCard) {
-          newCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-      }
-      
-      // Update guess dots
-      this.updateGuessDots(guessNumber, isCorrect);
-      
-      // Add marker to map
-      this.addMapMarker(guessedCountry, targetCountry, distance, isCorrect);
-    },
-    
-    // Get CSS class based on distance
-    getDistanceClass: function(distance) {
-      if (distance === 0) return 'distance-correct';
-      if (distance < 1000) return 'distance-very-close';
-      if (distance < 4000) return 'distance-close';
-      if (distance < 8000) return 'distance-medium';
-      return 'distance-far';
-    },
-    
-    // Get percentage for distance meter (closer = more filled)
-    getDistancePercent: function(distance) {
-      // Max distance on Earth is ~20,000 km
-      const maxDistance = 20000;
-      const percent = Math.max(5, 100 - (distance / maxDistance) * 100);
-      return Math.round(percent);
-    },
-    
-    // Format distance nicely
-    formatDistance: function(distance) {
-      if (distance < 1) return '< 1 km';
-      if (distance < 100) return Math.round(distance) + ' km';
-      return Math.round(distance).toLocaleString() + ' km';
-    },
-    
-    // ─────────────────────────────────────────────────────────
-    // HINT CHIPS (Progressive Reveal)
-    // ─────────────────────────────────────────────────────────
-    
-    /**
-     * Build hint chips HTML based on guess number
-     * 
-     * HINT 1 — Amazing fact (animal/flag)
-     * HINT 2 — Direction from guessed country
-     * HINT 3 — Climate + Landlocked
-     * HINT 4 — Sports fact
-     * HINT 5 — Continent
-     * HINT 6 — First/Last letter + Landmark + Warning
-     */
-    buildHintChips: function(guessNumber, targetCountry, guessedCountry, direction) {
-      const chips = [];
-      
-      // HINT 1 — Amazing fact (after guess 1)
-      if (guessNumber >= 1) {
-        chips.push(`
-          <span class="hint-chip amazing-fact" title="Fun Fact">
-            🦁 ${this.truncateText(targetCountry.amazingFact, 50)}
-          </span>
-        `);
-      }
-      
-      // HINT 2 — Direction (after guess 2)
-      if (guessNumber >= 2) {
-        chips.push(`
-          <span class="hint-chip direction" title="Direction from your guess">
-            🧭 Head ${direction} from ${guessedCountry.name}
-          </span>
-        `);
-      }
-      
-      // HINT 3 — Climate + Landlocked (after guess 3)
-      if (guessNumber >= 3) {
-        const climateEmoji = this.getClimateEmoji(targetCountry.climate);
-        chips.push(`
-          <span class="hint-chip climate" title="Climate">
-            ${climateEmoji} ${targetCountry.climate}
-          </span>
-        `);
-        
-        const landlockedChip = targetCountry.landlocked 
-          ? '<span class="hint-chip landlocked" title="Landlocked">🏔️ Landlocked</span>'
-          : '<span class="hint-chip landlocked" title="Has coastline">🏖️ Has coastline</span>';
-        chips.push(landlockedChip);
-      }
-      
-      // HINT 4 — Sports fact (after guess 4)
-      if (guessNumber >= 4) {
-        chips.push(`
-          <span class="hint-chip sports" title="Sports Fact">
-            ⚽ ${this.truncateText(targetCountry.sportsFact, 60)}
-          </span>
-        `);
-      }
-      
-      // HINT 5 — Continent (after guess 5)
-      if (guessNumber >= 5) {
-        chips.push(`
-          <span class="hint-chip continent" title="Continent">
-            📍 ${targetCountry.continent}
-          </span>
-        `);
-      }
-      
-      // HINT 6 — First/Last letter + Landmark + Warning (guess 6)
-      if (guessNumber >= 6) {
-        chips.push(`
-          <span class="hint-chip first-last" title="First & Last Letter">
-            🔤 ${targetCountry.firstLast}
-          </span>
-        `);
-        
-        chips.push(`
-          <span class="hint-chip landmark" title="Famous Landmark">
-            ${targetCountry.landmark}
-          </span>
-        `);
-        
-        chips.push(`
-          <span class="hint-chip warning">
-            ⚠️ LAST CHANCE!
-          </span>
-        `);
-      }
-      
-      return chips.join('');
-    },
-    
-    getClimateEmoji: function(climate) {
-      const emojis = {
-        'Tropical': '🌴',
-        'Arid': '🏜️',
-        'Temperate': '🌤️',
-        'Continental': '❄️',
-        'Polar': '🧊',
-        'Mediterranean': '☀️'
-      };
-      return emojis[climate] || '🌡️';
-    },
-    
-    truncateText: function(text, maxLength) {
-      if (!text) return '';
-      if (text.length <= maxLength) return text;
-      return text.substring(0, maxLength) + '...';
-    },
-    
-    // ─────────────────────────────────────────────────────────
-    // MAP MARKERS
-    // ─────────────────────────────────────────────────────────
-    addMapMarker: function(guessedCountry, targetCountry, distance, isCorrect) {
-      if (!this.map) return;
-      
-      // Create marker icon
-      const markerColor = isCorrect ? '#22C55E' : '#EF4444';
-      const markerIcon = L.divIcon({
-        className: 'custom-marker',
-        html: `
-          <div style="
-            width: 24px;
-            height: 24px;
-            background: ${markerColor};
-            border: 3px solid white;
-            border-radius: 50%;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-          ">${isCorrect ? '⭐' : ''}</div>
-        `,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12]
-      });
-      
-      // Add marker
-      const marker = L.marker([guessedCountry.lat, guessedCountry.lng], {
-        icon: markerIcon
-      }).addTo(this.map);
-      
-      // Add popup
-      marker.bindPopup(`
-        <div style="text-align: center; font-family: 'Nunito', sans-serif;">
-          <strong>${guessedCountry.flag} ${guessedCountry.name}</strong><br>
-          ${isCorrect ? '🎯 Correct!' : `${this.formatDistance(distance)} away`}
-        </div>
-      `);
-      
-      this.markers.push(marker);
-      
-      // Draw line from guess to target (if not correct)
-      if (!isCorrect) {
-        const distanceClass = this.getDistanceClass(distance);
-        const lineColor = distanceClass === 'distance-far' ? '#EF4444' 
-          : distanceClass === 'distance-medium' ? '#F97316'
-          : distanceClass === 'distance-close' ? '#EAB308'
-          : '#22C55E';
-        
-        const line = L.polyline([
-          [guessedCountry.lat, guessedCountry.lng],
-          [targetCountry.lat, targetCountry.lng]
-        ], {
-          color: lineColor,
-          weight: 2,
-          opacity: 0.6,
-          dashArray: '5, 10'
-        }).addTo(this.map);
-        
-        this.lines.push(line);
-      }
-      
-      // Pan to show the guess
-      this.map.panTo([guessedCountry.lat, guessedCountry.lng], {
-        animate: true,
-        duration: 0.5
-      });
-      
-      // If correct, zoom in on target
-      if (isCorrect) {
-        setTimeout(() => {
-          this.map.flyTo([targetCountry.lat, targetCountry.lng], 5, {
-            animate: true,
-            duration: 1
-          });
-        }, 500);
-      }
-    },
-    
-    // Clear all markers and lines
-    clearMap: function() {
-      this.markers.forEach(marker => {
-        if (this.map) this.map.removeLayer(marker);
-      });
-      this.lines.forEach(line => {
-        if (this.map) this.map.removeLayer(line);
-      });
-      this.markers = [];
-      this.lines = [];
-    },
-    
-    // ─────────────────────────────────────────────────────────
-    // GUESS DOTS (Progress Indicator)
-    // ─────────────────────────────────────────────────────────
-    updateGuessDots: function(guessCount, isCorrect = false) {
-      if (!this.elements.guessDots) return;
-      
-      this.elements.guessDots.forEach((dot, index) => {
-        dot.classList.remove('used', 'correct');
-        
-        if (index < guessCount) {
-          if (isCorrect && index === guessCount - 1) {
-            dot.classList.add('correct');
-          } else {
-            dot.classList.add('used');
-          }
-        }
-      });
-      
-      // Update counter text
-      if (this.elements.guessCounter) {
-        const counter = this.elements.guessCounter.querySelector('.guess-count');
-        if (counter) {
-          counter.textContent = `${guessCount}/6`;
-        }
-      }
-    },
-    
-    // ─────────────────────────────────────────────────────────
-    // STREAK BADGE
-    // ─────────────────────────────────────────────────────────
-    updateStreak: function(streak) {
-      if (!this.elements.streakBadge) return;
-      
-      const countEl = this.elements.streakBadge.querySelector('.streak-count');
-      if (countEl) {
-        countEl.textContent = streak;
-      }
-      
-      // Add active class if streak > 0
-      if (streak > 0) {
-        this.elements.streakBadge.classList.add('active');
-      } else {
-        this.elements.streakBadge.classList.remove('active');
-      }
-    },
-    
-    // ─────────────────────────────────────────────────────────
-    // THEME MANAGEMENT
-    // ─────────────────────────────────────────────────────────
-    loadTheme: function() {
-      const savedTheme = localStorage.getItem('dv-theme') || 'galaxy';
-      this.setTheme(savedTheme);
-    },
-    
-    setTheme: function(theme) {
-      this.currentTheme = theme;
-      document.documentElement.setAttribute('data-theme', theme);
-      localStorage.setItem('dv-theme', theme);
-      
-      // Update map tiles
-      this.setMapTiles(theme);
-      
-      // Update meta theme-color
-      const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-      if (metaThemeColor) {
-        const colors = {
-          galaxy: '#0F0F23',
-          candy: '#FFF0FB',
-          ocean: '#F0FAFF',
-          jungle: '#F0FDF4',
-          sunset: '#FFF7F0',
-          lemon: '#FEFCE8'
+
+        li.appendChild(flagSpan);
+        li.appendChild(nameSpan);
+
+        /* Click + touch handler */
+        var selectCountry = function (c) {
+          return function (e) {
+            e.preventDefault();
+            input.value = c.name;
+            self._hideAutocomplete(list, input);
+            var form = el('guess-form');
+            if (form) form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+          };
         };
-        metaThemeColor.setAttribute('content', colors[theme] || colors.galaxy);
-      }
-      
-      console.log('[UI] Theme set to:', theme);
+
+        li.addEventListener('click',    selectCountry(country));
+        li.addEventListener('touchend', selectCountry(country));
+
+        list.appendChild(li);
+      });
     },
-    
-    showThemeModal: function() {
-      const modal = this.elements.themeModal;
-      if (!modal) {
-        this.createThemeModal();
+
+    _updateHighlight: function (list) {
+      var items = list.querySelectorAll('.autocomplete-item');
+      items.forEach(function (item, i) {
+        item.classList.toggle('highlighted', i === _highlightedIndex);
+        if (i === _highlightedIndex) {
+          item.setAttribute('aria-selected', 'true');
+          item.scrollIntoView({ block: 'nearest' });
+        } else {
+          item.removeAttribute('aria-selected');
+        }
+      });
+    },
+
+    _hideAutocomplete: function (list, input) {
+      if (!list) return;
+      list.hidden    = true;
+      list.innerHTML = '';
+      _highlightedIndex  = -1;
+      _autocompleteItems = [];
+      if (input) input.setAttribute('aria-expanded', 'false');
+    },
+
+
+    /* ════════════════════════════════════════════
+       14. CLEAR INPUT
+       Called by: app.js → after successful guess
+       ════════════════════════════════════════════ */
+    clearInput: function () {
+      var input    = el('guess-input');
+      var list     = el('autocomplete-list');
+      var clearBtn = el('input-clear-btn');
+
+      if (input)    input.value = '';
+      if (clearBtn) clearBtn.hidden = true;
+      this._hideAutocomplete(list, input);
+    },
+
+
+    /* ════════════════════════════════════════════
+       15. SHOW MODAL
+       ID: #modal-overlay
+       Called by: app.js event listeners
+       ════════════════════════════════════════════ */
+    showModal: function (show) {
+      var overlay = el('modal-overlay');
+      if (!overlay) return;
+
+      if (show) {
+        overlay.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+
+        var modal = el('how-to-play-modal');
+        if (modal) {
+          setTimeout(function () {
+            var focusable = modal.querySelector(
+              'button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])'
+            );
+            if (focusable) focusable.focus();
+          }, 320);
+        }
+      } else {
+        overlay.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        var triggerBtn = el('how-to-play-btn');
+        if (triggerBtn) triggerBtn.focus();
+      }
+    },
+
+
+    /* ════════════════════════════════════════════
+       16. RESTORE GAME STATE
+       Called by: app.js → restoreGame()
+       ════════════════════════════════════════════ */
+    restoreGameState: function (guesses, targetCountry) {
+      if (!guesses || !Array.isArray(guesses)) return;
+
+      var self = this;
+
+      guesses.forEach(function (evalResult, i) {
+        var delay = i * 160;
+        setTimeout(function () {
+          self.renderAttemptRow(evalResult, i + 1, targetCountry);
+
+          if (self.map) {
+            self.addGuessMarker(
+              evalResult.guessLat,
+              evalResult.guessLng,
+              evalResult.guessName,
+              evalResult.isCorrect
+            );
+          }
+        }, delay);
+      });
+
+      /* Fit map after all rows rendered */
+      setTimeout(function () {
+        if (self.markers.length) self.fitMapBounds(self.markers);
+      }, guesses.length * 160 + 250);
+
+      /* Update remaining */
+      var maxGuesses  = window.MAX_GUESSES || 6;
+      var remaining   = Math.max(0, maxGuesses - guesses.length);
+      this.updateAttemptsRemaining(remaining);
+    },
+
+
+    /* ════════════════════════════════════════════
+       17. UPDATE SIDEBAR STATS
+       IDs: #stat-total-games, #stat-win-pct,
+            #stat-streak, #stat-best-streak
+       ════════════════════════════════════════════ */
+    updateSidebarStats: function () {
+      var stats  = window.getStats ? window.getStats() : null;
+      if (!stats) return;
+
+      var streak = window.StreakManager ? window.StreakManager.data : null;
+
+      var update = function (id, val) {
+        var e = el(id);
+        if (e) { e.textContent = val; tempClass(e, 'count-up', 800); }
+      };
+
+      update('stat-total-games', stats.totalGames);
+
+      var pct = stats.totalGames > 0
+        ? Math.round((stats.totalWins / stats.totalGames) * 100) : 0;
+      update('stat-win-pct',      pct + '%');
+      update('stat-streak',       streak ? streak.current : stats.currentStreak);
+      update('stat-best-streak',  streak ? streak.best    : stats.bestStreak);
+    },
+
+
+    /* ════════════════════════════════════════════
+       18. UPDATE DISTRIBUTION BARS
+       ID: #guess-distribution
+       ════════════════════════════════════════════ */
+    updateDistribution: function () {
+      var container = el('guess-distribution');
+      if (!container) return;
+
+      var stats = window.getStats ? window.getStats() : null;
+      if (!stats) return;
+
+      var dist = stats.guessDistribution || {};
+      var max  = 1;
+      for (var g = 1; g <= 6; g++) {
+        if ((dist[g] || 0) > max) max = dist[g];
+      }
+
+      var currentGuesses = window.GameState ? window.GameState.guesses.length : 0;
+      var currentWon     = window.GameState ? window.GameState.gameStatus === 'won' : false;
+
+      for (var n = 1; n <= 6; n++) {
+        var row = container.querySelector('[data-guess="' + n + '"]');
+        if (!row) continue;
+
+        var bar = row.querySelector('.dist-bar');
+        if (!bar) continue;
+
+        var count    = dist[n] || 0;
+        var widthPct = count > 0 ? Math.max(Math.round((count / max) * 100), 8) : 0;
+
+        bar.style.setProperty('--dist-width', widthPct + '%');
+        bar.style.setProperty('--dist-delay',  (n * 100) + 'ms');
+        bar.classList.add('dist-bar-grow');
+
+        var span = bar.querySelector('span');
+        if (span) span.textContent = count;
+
+        if (currentWon && n === currentGuesses) bar.classList.add('highlight');
+      }
+    },
+
+
+    /* ════════════════════════════════════════════
+       19. DISABLE INPUT (after game ends)
+       Called by: app.js → handleGameEnd()
+       ════════════════════════════════════════════ */
+    disableInput: function () {
+      var input     = el('guess-input');
+      var submitBtn = el('guess-submit-btn');
+
+      if (input) {
+        input.disabled   = true;
+        input.placeholder = '🎉 Come back tomorrow!';
+      }
+      if (submitBtn) submitBtn.disabled = true;
+    },
+
+
+    /* ════════════════════════════════════════════
+       20. SHAKE INPUT (invalid guess)
+       Called by: app.js → handleGuessSubmit()
+       ════════════════════════════════════════════ */
+    shakeInput: function () {
+      var form  = el('guess-form');
+      var input = el('guess-input');
+      var target = form || input;
+
+      if (!target) return;
+
+      target.classList.remove('shake');
+      void target.offsetWidth; /* Force reflow */
+      target.classList.add('shake');
+
+      setTimeout(function () { target.classList.remove('shake'); }, 520);
+    },
+
+
+    /* ════════════════════════════════════════════
+       21. PUBLIC: RENDER HINTS
+       Exposed so app.js can call if needed
+       Usually called internally via renderAttemptRow
+       ════════════════════════════════════════════ */
+    renderHints: function (attemptNumber, evalResult, targetCountry) {
+      var container = el('attempts-container');
+      if (!container) return;
+
+      /* Find the row for this attempt */
+      var row = container.querySelector('[data-attempt="' + attemptNumber + '"]');
+      if (!row) return;
+
+      /* Remove existing chips for this attempt */
+      var existing = row.querySelector('.hint-chips-row[data-hint="' + attemptNumber + '"]');
+      if (existing) existing.parentNode.removeChild(existing);
+
+      /* Re-append */
+      this._appendHintChips(row, attemptNumber, evalResult, targetCountry);
+    },
+
+
+    /* ════════════════════════════════════════════
+       22. LAZY LOAD OBSERVER
+       Sets up IntersectionObserver for [data-lazy]
+       Called by: app.js → init()
+       ════════════════════════════════════════════ */
+    initLazyObserver: function () {
+      if (!('IntersectionObserver' in window)) {
+        /* Fallback: show everything */
+        var lazyEls = document.querySelectorAll('[data-lazy], .lazy-load');
+        lazyEls.forEach(function (e) {
+          e.classList.add('loaded', 'in-view', 'visible');
+        });
         return;
       }
-      
-      modal.classList.add('active');
-      
-      // Update active theme indicator
-      modal.querySelectorAll('.theme-option').forEach(option => {
-        option.classList.toggle('active', option.dataset.theme === this.currentTheme);
+
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in-view', 'visible', 'loaded');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, {
+        threshold:  0.08,
+        rootMargin: '0px 0px -20px 0px'
       });
-    },
-    
-    hideThemeModal: function() {
-      if (this.elements.themeModal) {
-        this.elements.themeModal.classList.remove('active');
-      }
-    },
-    
-    createThemeModal: function() {
-      const modalHtml = `
-        <div class="modal-overlay" id="theme-modal">
-          <div class="modal">
-            <div class="modal-icon">🎨</div>
-            <h2 class="modal-title">Choose Theme</h2>
-            <p class="modal-subtitle">Pick your favorite color scheme</p>
-            
-            <div class="theme-grid">
-              <button class="theme-option ${this.currentTheme === 'galaxy' ? 'active' : ''}" data-theme="galaxy">
-                <div class="theme-preview galaxy"></div>
-                <span class="theme-name">Galaxy 🌌</span>
-              </button>
-              <button class="theme-option ${this.currentTheme === 'candy' ? 'active' : ''}" data-theme="candy">
-                <div class="theme-preview candy"></div>
-                <span class="theme-name">Candy 🍬</span>
-              </button>
-              <button class="theme-option ${this.currentTheme === 'ocean' ? 'active' : ''}" data-theme="ocean">
-                <div class="theme-preview ocean"></div>
-                <span class="theme-name">Ocean 🌊</span>
-              </button>
-              <button class="theme-option ${this.currentTheme === 'jungle' ? 'active' : ''}" data-theme="jungle">
-                <div class="theme-preview jungle"></div>
-                <span class="theme-name">Jungle 🌿</span>
-              </button>
-              <button class="theme-option ${this.currentTheme === 'sunset' ? 'active' : ''}" data-theme="sunset">
-                <div class="theme-preview sunset"></div>
-                <span class="theme-name">Sunset 🌅</span>
-              </button>
-              <button class="theme-option ${this.currentTheme === 'lemon' ? 'active' : ''}" data-theme="lemon">
-                <div class="theme-preview lemon"></div>
-                <span class="theme-name">Lemon 🍋</span>
-              </button>
-            </div>
-            
-            <div class="modal-actions">
-              <button class="btn btn-secondary w-full" id="close-theme-modal">Close</button>
-            </div>
-          </div>
-        </div>
-      `;
-      
-      document.body.insertAdjacentHTML('beforeend', modalHtml);
-      this.elements.themeModal = document.getElementById('theme-modal');
-      
-      // Add event listeners
-      this.elements.themeModal.querySelectorAll('.theme-option').forEach(option => {
-        option.addEventListener('click', () => {
-          this.setTheme(option.dataset.theme);
-          this.elements.themeModal.querySelectorAll('.theme-option').forEach(o => {
-            o.classList.toggle('active', o.dataset.theme === option.dataset.theme);
+
+      /* Observe existing elements */
+      document.querySelectorAll('[data-lazy], .lazy-load').forEach(function (el_) {
+        observer.observe(el_);
+      });
+
+      /* Watch for new elements (hint chips etc.) */
+      var mutationObs = new MutationObserver(function (mutations) {
+        mutations.forEach(function (m) {
+          m.addedNodes.forEach(function (node) {
+            if (node.nodeType !== 1) return;
+            if (node.matches('[data-lazy], .lazy-load')) observer.observe(node);
+            node.querySelectorAll('[data-lazy], .lazy-load').forEach(function (child) {
+              observer.observe(child);
+            });
           });
         });
       });
-      
-      document.getElementById('close-theme-modal').addEventListener('click', () => {
-        this.hideThemeModal();
-      });
-      
-      // Close on overlay click
-      this.elements.themeModal.addEventListener('click', (e) => {
-        if (e.target === this.elements.themeModal) {
-          this.hideThemeModal();
-        }
-      });
-      
-      // Show it
-      setTimeout(() => {
-        this.elements.themeModal.classList.add('active');
-      }, 10);
-    },
-    
-    // ─────────────────────────────────────────────────────────
-    // RESULT MODAL (Win/Lose)
-    // ─────────────────────────────────────────────────────────
-    showResultModal: function(isWin, targetCountry, guessCount, streak) {
-      const existingModal = document.getElementById('result-modal');
-      if (existingModal) {
-        existingModal.remove();
-      }
-      
-      const icon = isWin ? '🎉' : '😢';
-      const title = isWin ? 'Congratulations!' : 'Game Over';
-      const subtitle = isWin 
-        ? `You found it in ${guessCount} ${guessCount === 1 ? 'guess' : 'guesses'}!`
-        : `The country was ${targetCountry.name}`;
-      
-      const modalHtml = `
-        <div class="modal-overlay active" id="result-modal">
-          <div class="modal">
-            <div class="modal-icon">${icon}</div>
-            <h2 class="modal-title">${title}</h2>
-            <p class="modal-subtitle">${subtitle}</p>
-            
-            <div class="country-reveal">
-              <span class="country-reveal-flag">${targetCountry.flag}</span>
-              <span class="country-reveal-name">${targetCountry.name}</span>
-            </div>
-            
-            <div class="stats-grid">
-              <div class="stat-item">
-                <div class="stat-value">${guessCount}</div>
-                <div class="stat-label">Guesses</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-value">${streak}</div>
-                <div class="stat-label">Streak</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-value">${isWin ? '✓' : '✗'}</div>
-                <div class="stat-label">Today</div>
-              </div>
-            </div>
-            
-            <div class="modal-actions">
-              <button class="btn btn-primary w-full" id="share-result-btn">
-                📤 Share Result
-              </button>
-              <button class="btn btn-secondary w-full" id="close-result-modal">
-                Close
-              </button>
-            </div>
-            
-            <div class="countdown-section mt-4">
-              <div class="countdown-label">Next puzzle in</div>
-              <div class="countdown-timer" id="countdown-timer">
-                <div class="countdown-unit">
-                  <span class="countdown-value" id="countdown-hours">--</span>
-                  <span class="countdown-label-small">Hours</span>
-                </div>
-                <div class="countdown-unit">
-                  <span class="countdown-value" id="countdown-minutes">--</span>
-                  <span class="countdown-label-small">Mins</span>
-                </div>
-                <div class="countdown-unit">
-                  <span class="countdown-value" id="countdown-seconds">--</span>
-                  <span class="countdown-label-small">Secs</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-      
-      document.body.insertAdjacentHTML('beforeend', modalHtml);
-      
-      // Start countdown
-      this.startCountdown();
-      
-      // Event listeners
-      document.getElementById('share-result-btn').addEventListener('click', () => {
-        this.shareResult(isWin, targetCountry, guessCount);
-      });
-      
-      document.getElementById('close-result-modal').addEventListener('click', () => {
-        document.getElementById('result-modal').classList.remove('active');
-      });
-      
-      // Confetti if win
-      if (isWin) {
-        this.showConfetti();
-      }
-    },
-    
-    // ─────────────────────────────────────────────────────────
-    // COUNTDOWN TIMER
-    // ─────────────────────────────────────────────────────────
-    startCountdown: function() {
-      const updateCountdown = () => {
-        const now = new Date();
-        
-        // Get midnight IST (UTC+5:30)
-        const istOffset = 5.5 * 60 * 60 * 1000; // 5 hours 30 minutes in ms
-        const utcNow = now.getTime() + (now.getTimezoneOffset() * 60 * 1000);
-        const istNow = new Date(utcNow + istOffset);
-        
-        // Tomorrow midnight IST
-        const tomorrow = new Date(istNow);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        tomorrow.setHours(0, 0, 0, 0);
-        
-        const diff = tomorrow.getTime() - istNow.getTime();
-        
-        const hours = Math.floor(diff / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-        
-        const hoursEl = document.getElementById('countdown-hours');
-        const minutesEl = document.getElementById('countdown-minutes');
-        const secondsEl = document.getElementById('countdown-seconds');
-        
-        if (hoursEl) hoursEl.textContent = String(hours).padStart(2, '0');
-        if (minutesEl) minutesEl.textContent = String(minutes).padStart(2, '0');
-        if (secondsEl) secondsEl.textContent = String(seconds).padStart(2, '0');
-      };
-      
-      updateCountdown();
-      setInterval(updateCountdown, 1000);
-    },
-    
-    // ─────────────────────────────────────────────────────────
-    // SHARE RESULT
-    // ─────────────────────────────────────────────────────────
-    shareResult: function(isWin, targetCountry, guessCount) {
-      // This will be handled by share.js
-      const event = new CustomEvent('share-result', {
-        detail: { isWin, targetCountry, guessCount }
-      });
-      document.dispatchEvent(event);
-    },
-    
-    // ─────────────────────────────────────────────────────────
-    // CONFETTI
-    // ─────────────────────────────────────────────────────────
-    showConfetti: function() {
-      const container = document.createElement('div');
-      container.className = 'confetti-container';
-      document.body.appendChild(container);
-      
-      const colors = ['#FF2D87', '#7C3AED', '#22C55E', '#EAB308', '#0284C7', '#EA580C'];
-      const confettiCount = 100;
-      
-      for (let i = 0; i < confettiCount; i++) {
-        const confetti = document.createElement('div');
-        confetti.style.cssText = `
-          position: absolute;
-          width: ${Math.random() * 10 + 5}px;
-          height: ${Math.random() * 10 + 5}px;
-          background: ${colors[Math.floor(Math.random() * colors.length)]};
-          left: ${Math.random() * 100}%;
-          top: -20px;
-          border-radius: ${Math.random() > 0.5 ? '50%' : '0'};
-          animation: confetti-fall ${Math.random() * 2 + 2}s linear forwards;
-          animation-delay: ${Math.random() * 0.5}s;
-        `;
-        container.appendChild(confetti);
-      }
-      
-      // Add animation keyframes if not exists
-      if (!document.getElementById('confetti-styles')) {
-        const style = document.createElement('style');
-        style.id = 'confetti-styles';
-        style.textContent = `
-          @keyframes confetti-fall {
-            0% {
-              transform: translateY(0) rotate(0deg);
-              opacity: 1;
-            }
-            100% {
-              transform: translateY(100vh) rotate(720deg);
-              opacity: 0;
-            }
-          }
-        `;
-        document.head.appendChild(style);
-      }
-      
-      // Remove after animation
-      setTimeout(() => {
-        container.remove();
-      }, 4000);
-    },
-    
-    // ─────────────────────────────────────────────────────────
-    // DISABLE INPUT (Game Over)
-    // ─────────────────────────────────────────────────────────
-    disableInput: function() {
-      if (this.elements.countryInput) {
-        this.elements.countryInput.disabled = true;
-        this.elements.countryInput.placeholder = 'Game over for today!';
-      }
-      if (this.elements.submitBtn) {
-        this.elements.submitBtn.disabled = true;
-      }
-    },
-    
-    enableInput: function() {
-      if (this.elements.countryInput) {
-        this.elements.countryInput.disabled = false;
-        this.elements.countryInput.placeholder = 'Type country name...';
-      }
-      if (this.elements.submitBtn) {
-        this.elements.submitBtn.disabled = false;
-      }
-    },
-    
-    // ─────────────────────────────────────────────────────────
-    // CLEAR GUESSES (New Game)
-    // ─────────────────────────────────────────────────────────
-    clearGuesses: function() {
-      if (this.elements.guessesList) {
-        this.elements.guessesList.innerHTML = '';
-      }
-      this.clearMap();
-      this.updateGuessDots(0);
-    },
-    
-    // ─────────────────────────────────────────────────────────
-    // NEWS TICKER
-    // ─────────────────────────────────────────────────────────
-    setNewsText: function(text) {
-      if (this.elements.newsText) {
-        this.elements.newsText.textContent = text;
-      }
+
+      mutationObs.observe(document.body, { childList: true, subtree: true });
+
+      console.log('[ui.js] Lazy observer initialized');
     }
-  };
-  
-  // Add shake animation CSS
-  const shakeStyle = document.createElement('style');
-  shakeStyle.textContent = `
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-      20%, 40%, 60%, 80% { transform: translateX(5px); }
-    }
-  `;
-  document.head.appendChild(shakeStyle);
-  
-  // Export
-  window.UI = UI;
-  
-  // Initialize when DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => UI.init());
-  } else {
-    UI.init();
+
+  }; // end UIController
+
+
+  /* ─────────────────────────────────────────────
+     MODULE HELPER (used by _appendHintChips)
+     Returns country data for a given id
+     ───────────────────────────────────────────── */
+  function guessDataFor(id) {
+    if (!id || !window.COUNTRY_LOOKUP) return null;
+    return window.COUNTRY_LOOKUP[id] || null;
   }
-  
+
+
+  console.log('[ui.js] UI Controller loaded');
+
 })();
