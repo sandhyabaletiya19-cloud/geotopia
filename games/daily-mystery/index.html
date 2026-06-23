@@ -13,6 +13,7 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="format-detection" content="telephone=no" />
 
+  <!-- Open Graph -->
   <meta property="og:title" content="Map Mystery — Dharaverse Daily" />
   <meta property="og:description" content="Guess the country in 6 tries. New hints unlock each guess!" />
   <meta property="og:url" content="https://dharaverse.com/games/daily-mystery/" />
@@ -34,7 +35,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
 
-  <!-- Cache-busted styles -->
+  <!-- ★ CACHE-BUSTED STYLES — increment v=X each deploy ★ -->
   <link rel="stylesheet" href="css/game.css?v=6" />
   <link rel="stylesheet" href="css/animations.css?v=6" />
 
@@ -54,25 +55,50 @@
 
 <body>
 
-  <!-- ★ FORCE CLEAR OLD CACHE — remove after 1 week ★ -->
+  <!-- ═══════════════════════════════════════════════════
+       ★ FORCE CACHE-CLEAR SCRIPT ★
+       Must be FIRST thing in <body>.
+       When you bump version (V = '7'), every user's
+       browser will auto-clear old cache on next visit.
+       ═══════════════════════════════════════════════════ -->
   <script>
     (function () {
-      var V = '3';
+      var V = '6';                          // ← match all ?v=6 above
       var K = 'dmm_cache_cleared';
+
       if (localStorage.getItem(K) !== V) {
+        console.log('[CACHE] Clearing old cache for version', V);
+
+        /* Delete all Service Worker caches */
         if ('caches' in window) {
-          caches.keys().then(function (n) { n.forEach(function (c) { caches.delete(c); }); });
+          caches.keys().then(function (names) {
+            names.forEach(function (name) {
+              caches.delete(name);
+              console.log('[CACHE] Deleted:', name);
+            });
+          });
         }
+
+        /* Unregister old Service Workers */
         if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.getRegistrations().then(function (r) { r.forEach(function (s) { s.unregister(); }); });
+          navigator.serviceWorker.getRegistrations().then(function (regs) {
+            regs.forEach(function (reg) {
+              reg.unregister();
+              console.log('[CACHE] Unregistered SW:', reg.scope);
+            });
+          });
         }
+
+        /* Mark this version as cleared */
         localStorage.setItem(K, V);
+
+        /* Reload with fresh files */
         setTimeout(function () { window.location.reload(true); }, 800);
       }
     })();
   </script>
 
-  <!-- LOADING -->
+  <!-- ═══ LOADING SCREEN ═══ -->
   <div id="loading-screen" aria-live="polite">
     <div class="loading-inner">
       <div class="loading-globe" aria-hidden="true">🌍</div>
@@ -81,10 +107,10 @@
     </div>
   </div>
 
-  <!-- TOASTS -->
+  <!-- ═══ TOASTS ═══ -->
   <div id="toast-container" aria-live="assertive" role="status"></div>
 
-  <!-- MODAL -->
+  <!-- ═══ MODAL ═══ -->
   <div id="modal-overlay" class="modal-overlay" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="modal-title">
     <div id="how-to-play-modal" class="modal glass-card" role="document">
       <div class="modal-header">
@@ -139,48 +165,10 @@
           <span class="streak-fire" aria-hidden="true">🔥</span><span class="streak-count">0</span>
         </div>
         <button id="how-to-play-btn" class="btn-icon" aria-label="How to play" type="button"><span aria-hidden="true">?</span></button>
-            <!-- MOBILE BOTTOM NAV — visible only on mobile -->
-    <nav class="mobile-bottom-nav" aria-label="Explore Dharaverse">
-      <a href="/games/daily-mystery/" class="mobile-nav-link active">
-        <span class="mobile-nav-icon">🌍</span>
-        <span class="mobile-nav-label">Mystery</span>
-      </a>
-      <a href="/atlas/" class="mobile-nav-link">
-        <span class="mobile-nav-icon">🗺️</span>
-        <span class="mobile-nav-label">Atlas</span>
-      </a>
-      <a href="/encyclopedia/" class="mobile-nav-link">
-        <span class="mobile-nav-icon">📚</span>
-        <span class="mobile-nav-label">Ency.</span>
-      </a>
-      <a href="/games/" class="mobile-nav-link">
-        <span class="mobile-nav-icon">🎮</span>
-        <span class="mobile-nav-label">Games</span>
-      </a>
-      <a href="https://dharaverse.com" class="mobile-nav-link">
-        <span class="mobile-nav-icon">🏠</span>
-        <span class="mobile-nav-label">Home</span>
-      </a>
-    </nav>
-
-  </div><!-- /#game-wrapper -->
-
-  <!-- FUN FACT POPUP — slides up on news banner tap -->
-  <div id="fun-fact-popup" class="fun-fact-popup" role="dialog" aria-hidden="true">
-    <div class="fun-fact-inner">
-      <div class="fun-fact-header">
-        <span class="fun-fact-title">💡 Today's Clue</span>
-        <button id="fun-fact-close" class="fun-fact-close" aria-label="Close" type="button">✕</button>
-      </div>
-      <div id="fun-fact-text" class="fun-fact-text">Loading…</div>
-      <div id="fun-fact-joke" class="fun-fact-joke">Loading joke…</div>
-      <div class="fun-fact-source">🧭 New puzzle at 8:00 AM IST every day</div>
-    </div>
-  </div>
       </div>
     </header>
 
-    <!-- NEWS BANNER -->
+    <!-- NEWS / HINT BANNER -->
     <div id="news-fact" role="complementary" aria-label="Hint">
       <span class="news-icon" aria-hidden="true">💡</span>
       <span class="news-text">Loading hint…</span>
@@ -228,7 +216,7 @@
         </div>
       </div>
 
-      <!-- Game over — inside scrollable area -->
+      <!-- Game over banner — inside scrollable area -->
       <div id="game-over-banner" role="alert" aria-live="assertive" hidden>
         <div class="game-over-inner glass-card">
           <div class="game-over-won" id="game-over-won" hidden>
@@ -258,6 +246,30 @@
       </div>
 
     </main>
+
+    <!-- MOBILE BOTTOM NAV — visible only on mobile -->
+    <nav class="mobile-bottom-nav" aria-label="Explore Dharaverse">
+      <a href="/games/daily-mystery/" class="mobile-nav-link active">
+        <span class="mobile-nav-icon">🌍</span>
+        <span class="mobile-nav-label">Mystery</span>
+      </a>
+      <a href="/atlas/" class="mobile-nav-link">
+        <span class="mobile-nav-icon">🗺️</span>
+        <span class="mobile-nav-label">Atlas</span>
+      </a>
+      <a href="/encyclopedia/" class="mobile-nav-link">
+        <span class="mobile-nav-icon">📚</span>
+        <span class="mobile-nav-label">Ency.</span>
+      </a>
+      <a href="/games/" class="mobile-nav-link">
+        <span class="mobile-nav-icon">🎮</span>
+        <span class="mobile-nav-label">Games</span>
+      </a>
+      <a href="https://dharaverse.com" class="mobile-nav-link">
+        <span class="mobile-nav-icon">🏠</span>
+        <span class="mobile-nav-label">Home</span>
+      </a>
+    </nav>
 
     <!-- DESKTOP SIDEBAR -->
     <aside id="desktop-sidebar" aria-label="Statistics">
@@ -303,7 +315,22 @@
       </div>
     </aside>
 
+  </div><!-- /#game-wrapper -->
+
+
+  <!-- ═══ FUN FACT POPUP — slides up on news banner tap ═══ -->
+  <div id="fun-fact-popup" class="fun-fact-popup" role="dialog" aria-hidden="true" aria-modal="false">
+    <div class="fun-fact-inner">
+      <div class="fun-fact-header">
+        <span class="fun-fact-title">💡 Today's Clue</span>
+        <button id="fun-fact-close" class="fun-fact-close" aria-label="Close" type="button">✕</button>
+      </div>
+      <div id="fun-fact-text" class="fun-fact-text">Tap the news banner to see today's clue!</div>
+      <div id="fun-fact-joke" class="fun-fact-joke">Loading joke…</div>
+      <div class="fun-fact-source">🧭 New puzzle at 8:00 AM IST every day</div>
+    </div>
   </div>
+
 
   <!-- Service Worker with force-update -->
   <script>
@@ -331,7 +358,7 @@
     }
   </script>
 
-  <!-- Cache-busted game scripts -->
+  <!-- ★ CACHE-BUSTED GAME SCRIPTS — match V above ★ -->
   <script src="js/data.js?v=6"></script>
   <script src="js/logic.js?v=6"></script>
   <script src="js/state.js?v=6"></script>
