@@ -19,11 +19,18 @@
   <meta property="og:url" content="https://dharaverse.com/games/daily-mystery/" />
   <meta property="og:type" content="website" />
 
-  <!-- Twitter Card -->
+  <!-- Twitter -->
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="Map Mystery — Dharaverse" />
 
   <title>Map Mystery — Dharaverse Daily</title>
+
+  <!-- Emoji favicon — no PNG needed -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌍</text></svg>" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌍</text></svg>" />
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/games/daily-mystery/manifest.json" />
 
   <!-- Preconnect -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -31,41 +38,30 @@
   <link rel="preconnect" href="https://unpkg.com" crossorigin />
 
   <!-- Google Fonts -->
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
-    rel="stylesheet"
-  />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
   <!-- Leaflet CSS -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    crossorigin=""
-  />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
 
   <!-- Game Styles -->
   <link rel="stylesheet" href="css/game.css" />
   <link rel="stylesheet" href="css/animations.css" />
 
-  <!-- Leaflet JS — in head so L is defined before game scripts -->
+  <!-- Leaflet JS — in <head> so L is defined before game scripts -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
   <style>
-    /* ── CRITICAL OVERRIDES ── */
-    /* FIX: Remove position:fixed from body — it kills ALL scrolling */
+    /* Critical: prevent FOUC and fix scroll */
     html {
       height: 100%;
       overflow: hidden;
     }
     body {
-      margin: 0;
-      padding: 0;
       height: 100%;
       overflow: hidden;
-      /* NOT position:fixed — that breaks mobile scroll */
+      margin: 0;
+      /* NO position:fixed — kills mobile scroll */
     }
-
-    /* Game wrapper IS the scroll container */
     #game-wrapper {
       display: flex;
       flex-direction: column;
@@ -73,28 +69,18 @@
       height: 100dvh;
       overflow: hidden;
     }
-
-    /* Map must have explicit height */
-    .map-section {
-      flex-shrink: 0;
-    }
     #game-map {
       width: 100%;
       height: 100%;
       min-height: 180px;
       background: #0a0a2e;
     }
-
-    /* Game area scrolls independently */
     #game-area {
       flex: 1;
       overflow-y: auto;
       overflow-x: hidden;
       -webkit-overflow-scrolling: touch;
-      overscroll-behavior-y: contain;
     }
-
-    /* Loading screen */
     #loading-screen {
       position: fixed;
       inset: 0;
@@ -104,10 +90,7 @@
       justify-content: center;
       background: #0a0a2e;
     }
-
-    .leaflet-container {
-      background: #0a0a2e !important;
-    }
+    .leaflet-container { background: #0a0a2e !important; }
   </style>
 </head>
 
@@ -140,7 +123,7 @@
 
       <div class="modal-header">
         <h2 id="modal-title" class="modal-title">How to Play 🗺️</h2>
-        <button id="close-modal-btn" class="modal-close" aria-label="Close modal" type="button">✕</button>
+        <button id="close-modal-btn" class="modal-close" aria-label="Close" type="button">✕</button>
       </div>
 
       <div class="modal-body">
@@ -167,7 +150,7 @@
           <div class="modal-step">
             <span class="step-icon">💡</span>
             <div class="step-text">
-              <strong>Hints unlock each guess</strong>
+              <strong>Hints unlock after each guess</strong>
               <span>Fun fact → Direction → Climate → Sports → Continent → Letters</span>
             </div>
           </div>
@@ -175,37 +158,37 @@
             <span class="step-icon">🏆</span>
             <div class="step-text">
               <strong>Find it in fewer tries!</strong>
-              <span>Build your streak and share results</span>
+              <span>Build your streak and share your result</span>
             </div>
           </div>
         </div>
 
-        <!-- Hint legend -->
+        <!-- Hint unlock legend -->
         <div class="modal-feedback-legend">
           <h3>🎯 Hint Unlock System</h3>
           <div class="legend-row">
-            <span class="legend-dot" style="background:#60A5FA"></span>
-            <span><strong>Guess 1:</strong> Fun fact (animal / flag)</span>
+            <span class="legend-dot" style="background:#60A5FA;box-shadow:0 0 6px #60A5FA"></span>
+            <span><strong>Guess 1:</strong> Fun fact (national animal / flag)</span>
           </div>
           <div class="legend-row">
-            <span class="legend-dot" style="background:#FB923C"></span>
-            <span><strong>Guess 2:</strong> Direction from guess</span>
+            <span class="legend-dot" style="background:#FB923C;box-shadow:0 0 6px #FB923C"></span>
+            <span><strong>Guess 2:</strong> Direction from your guess</span>
           </div>
           <div class="legend-row">
-            <span class="legend-dot" style="background:#34D399"></span>
-            <span><strong>Guess 3:</strong> Climate + landlocked</span>
+            <span class="legend-dot" style="background:#34D399;box-shadow:0 0 6px #34D399"></span>
+            <span><strong>Guess 3:</strong> Climate + landlocked status</span>
           </div>
           <div class="legend-row">
-            <span class="legend-dot" style="background:#A855F7"></span>
-            <span><strong>Guess 4:</strong> Sports achievement</span>
+            <span class="legend-dot" style="background:#A855F7;box-shadow:0 0 6px #A855F7"></span>
+            <span><strong>Guess 4:</strong> Famous sports achievement</span>
           </div>
           <div class="legend-row">
-            <span class="legend-dot" style="background:#F472B6"></span>
+            <span class="legend-dot" style="background:#F472B6;box-shadow:0 0 6px #F472B6"></span>
             <span><strong>Guess 5:</strong> Continent name</span>
           </div>
           <div class="legend-row">
-            <span class="legend-dot" style="background:#FB7185"></span>
-            <span><strong>Guess 6:</strong> First &amp; last letter ⚠️</span>
+            <span class="legend-dot" style="background:#FB7185;box-shadow:0 0 6px #FB7185"></span>
+            <span><strong>Guess 6:</strong> First &amp; last letter + landmark ⚠️</span>
           </div>
         </div>
 
@@ -214,21 +197,21 @@
           <h3>📏 Distance Colors</h3>
           <div class="legend-row">
             <span class="legend-dot correct"></span>
-            <span>Burning hot — under 200 km</span>
+            <span>🔥 Burning hot — under 200 km away</span>
           </div>
           <div class="legend-row">
             <span class="legend-dot close"></span>
-            <span>Getting warm — 200 to 1,000 km</span>
+            <span>🌡️ Getting warm — 200 to 1,000 km</span>
           </div>
           <div class="legend-row">
             <span class="legend-dot wrong"></span>
-            <span>Far away — over 1,000 km</span>
+            <span>❄️ Far away — over 1,000 km</span>
           </div>
         </div>
 
         <div class="modal-news-note">
           <span>📰</span>
-          <p>Today's country may be linked to real news. Watch the hint banner!</p>
+          <p>Each day's country may be connected to real news. Watch the banner!</p>
         </div>
       </div>
 
@@ -244,7 +227,6 @@
 
   <!-- ═══════════════════════════════════════════
        MAIN GAME WRAPPER
-       Flex column on mobile, CSS Grid on desktop
        ═══════════════════════════════════════════ -->
   <div id="game-wrapper">
 
@@ -256,6 +238,7 @@
           <span class="header-back-text">Games</span>
         </a>
       </div>
+
       <div class="header-center">
         <h1 class="header-title">
           <span class="header-globe" aria-hidden="true">🌍</span>
@@ -263,8 +246,9 @@
         </h1>
         <span id="day-number">Day #1</span>
       </div>
+
       <div class="header-right">
-        <div id="streak-display" class="streak-badge" role="status" title="Your streak">
+        <div id="streak-display" class="streak-badge" role="status" title="Your winning streak">
           <span class="streak-fire" aria-hidden="true">🔥</span>
           <span class="streak-count">0</span>
         </div>
@@ -274,15 +258,15 @@
       </div>
     </header>
 
-    <!-- NEWS BANNER -->
+    <!-- NEWS / HINT BANNER -->
     <div id="news-fact" role="complementary" aria-label="Today's hint">
-      <span class="news-icon" aria-hidden="true">📰</span>
+      <span class="news-icon" aria-hidden="true">💡</span>
       <span class="news-text">Loading today's hint…</span>
     </div>
 
     <!-- MAP -->
     <section id="map-section" class="map-section" aria-label="World map">
-      <div id="game-map" role="application" tabindex="0"></div>
+      <div id="game-map" role="application" tabindex="0" aria-label="Interactive world map"></div>
       <div class="map-overlay-top">
         <div id="attempts-remaining" class="attempts-pill" aria-live="polite" role="status">
           6 guesses left
@@ -290,10 +274,10 @@
       </div>
     </section>
 
-    <!-- GAME AREA — this section scrolls on mobile -->
+    <!-- GAME AREA — scrollable on mobile -->
     <main id="game-area" role="main">
 
-      <!-- Column headers -->
+      <!-- Column headers (shown after first guess) -->
       <div class="attempt-headers" id="attempt-headers" aria-hidden="true" hidden>
         <span class="col-header col-country">Country</span>
         <span class="col-header col-distance">Distance</span>
@@ -339,16 +323,16 @@
         <ul id="autocomplete-list" class="autocomplete-list" role="listbox" hidden></ul>
       </div>
 
-      <!-- Attempts container -->
+      <!-- Attempts — guess rows injected here by ui.js -->
       <div id="attempts-container" class="attempts-container" role="list" aria-live="polite">
         <div class="attempts-empty" id="attempts-empty">
           <span class="empty-icon" aria-hidden="true">🧭</span>
-          <p>Your guesses will appear here</p>
+          <p>Your guesses appear here</p>
           <p class="empty-sub">Each wrong guess unlocks a new hint!</p>
         </div>
       </div>
 
-      <!-- Game over banner (inside scrollable area so user can see it) -->
+      <!-- Game over banner — inside scrollable area -->
       <div id="game-over-banner" role="alert" aria-live="assertive" hidden>
         <div class="game-over-inner glass-card">
 
@@ -367,7 +351,7 @@
             </p>
           </div>
 
-          <div class="game-over-streak" id="game-over-streak-info">
+          <div class="game-over-streak">
             <span class="streak-fire" aria-hidden="true">🔥</span>
             <span id="game-over-streak-count">0</span>
             <span>day streak</span>
@@ -379,7 +363,7 @@
           </div>
 
           <div class="next-game-timer">
-            <span class="timer-label">Next mystery in</span>
+            <span class="timer-label">Next mystery in (IST)</span>
             <span id="next-game-countdown" class="timer-value" aria-live="polite">--:--:--</span>
           </div>
 
@@ -389,10 +373,11 @@
     </main>
 
     <!-- DESKTOP SIDEBAR -->
-    <aside id="desktop-sidebar" class="desktop-sidebar" aria-label="Statistics">
+    <aside id="desktop-sidebar" aria-label="Statistics">
 
+      <!-- Stats -->
       <div class="sidebar-card glass-card">
-        <h3 class="sidebar-title">Your Stats</h3>
+        <h3 class="sidebar-title">📊 Your Stats</h3>
         <div class="stat-grid">
           <div class="stat-item">
             <span class="stat-value" id="stat-total-games">0</span>
@@ -413,9 +398,10 @@
         </div>
       </div>
 
+      <!-- Distribution -->
       <div class="sidebar-card glass-card">
-        <h3 class="sidebar-title">Guess Distribution</h3>
-        <div id="guess-distribution" class="guess-distribution" role="img">
+        <h3 class="sidebar-title">🎯 Guess Distribution</h3>
+        <div id="guess-distribution" class="guess-distribution" role="img" aria-label="Distribution">
           <div class="dist-row" data-guess="1"><span class="dist-label">1</span><div class="dist-bar-wrap"><div class="dist-bar" style="width:0%"><span>0</span></div></div></div>
           <div class="dist-row" data-guess="2"><span class="dist-label">2</span><div class="dist-bar-wrap"><div class="dist-bar" style="width:0%"><span>0</span></div></div></div>
           <div class="dist-row" data-guess="3"><span class="dist-label">3</span><div class="dist-bar-wrap"><div class="dist-bar" style="width:0%"><span>0</span></div></div></div>
@@ -425,22 +411,54 @@
         </div>
       </div>
 
+      <!-- Hint legend -->
       <div class="sidebar-card glass-card">
-        <h3 class="sidebar-title">Hint System</h3>
-        <div style="display:flex;flex-direction:column;gap:6px;padding-top:4px;font-size:12px;color:#CBD5E1">
-          <div style="display:flex;align-items:center;gap:8px">💡 <strong style="color:#60A5FA">G1</strong> Fun fact</div>
-          <div style="display:flex;align-items:center;gap:8px">🧭 <strong style="color:#FB923C">G2</strong> Direction</div>
-          <div style="display:flex;align-items:center;gap:8px">🌡️ <strong style="color:#34D399">G3</strong> Climate</div>
-          <div style="display:flex;align-items:center;gap:8px">🏆 <strong style="color:#A855F7">G4</strong> Sports</div>
-          <div style="display:flex;align-items:center;gap:8px">📍 <strong style="color:#F472B6">G5</strong> Continent</div>
-          <div style="display:flex;align-items:center;gap:8px">🔤 <strong style="color:#FB7185">G6</strong> Letters ⚠️</div>
+        <h3 class="sidebar-title">💡 Hint System</h3>
+        <div class="hint-legend-list">
+          <div class="hint-legend-row">
+            <span class="hint-chip hint-blue" style="animation:none">💡 G1</span>
+            <span>Fun fact</span>
+          </div>
+          <div class="hint-legend-row">
+            <span class="hint-chip hint-orange" style="animation:none">🧭 G2</span>
+            <span>Direction</span>
+          </div>
+          <div class="hint-legend-row">
+            <span class="hint-chip hint-green" style="animation:none">🌡️ G3</span>
+            <span>Climate</span>
+          </div>
+          <div class="hint-legend-row">
+            <span class="hint-chip hint-purple" style="animation:none">🏆 G4</span>
+            <span>Sports</span>
+          </div>
+          <div class="hint-legend-row">
+            <span class="hint-chip hint-pink" style="animation:none">📍 G5</span>
+            <span>Continent</span>
+          </div>
+          <div class="hint-legend-row">
+            <span class="hint-chip hint-red" style="animation:none">🔤 G6</span>
+            <span>Letters ⚠️</span>
+          </div>
         </div>
       </div>
 
-      <div class="sidebar-card glass-card sidebar-links">
-        <a href="/atlas/" class="sidebar-link">🗺️ World Atlas</a>
-        <a href="/encyclopedia/" class="sidebar-link">📚 Encyclopedia</a>
-        <a href="/games/" class="sidebar-link">🎮 More Games</a>
+      <!-- Quick links -->
+      <div class="sidebar-card glass-card">
+        <h3 class="sidebar-title">🔗 Explore</h3>
+        <div class="sidebar-links">
+          <a href="/atlas/" class="sidebar-link">
+            <span>🗺️</span> World Atlas
+          </a>
+          <a href="/encyclopedia/" class="sidebar-link">
+            <span>📚</span> Encyclopedia
+          </a>
+          <a href="/games/" class="sidebar-link">
+            <span>🎮</span> More Games
+          </a>
+          <a href="https://dharaverse.com" class="sidebar-link">
+            <span>🏠</span> Dharaverse
+          </a>
+        </div>
       </div>
 
     </aside>
@@ -459,7 +477,7 @@
     }
   </script>
 
-  <!-- Game Scripts -->
+  <!-- Game Scripts — ORDER MATTERS -->
   <script src="js/data.js"></script>
   <script src="js/logic.js"></script>
   <script src="js/state.js"></script>
