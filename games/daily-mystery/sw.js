@@ -5,7 +5,7 @@
    ★ CHANGE CACHE_VERSION to force update on all devices ★
    ═══════════════════════════════════════════════════════════ */
 
-var CACHE_VERSION = 'dmm-v4';  // ← INCREMENT THIS every deploy
+var CACHE_VERSION = 'dmm-v6';  // ← INCREMENT THIS every deploy
 
 var CACHE_FILES = [
   '/games/daily-mystery/',
