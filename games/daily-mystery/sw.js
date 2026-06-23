@@ -1,15 +1,15 @@
 /* ═══════════════════════════════════════════════════════════
    DHARAVERSE MAP MYSTERY — SERVICE WORKER
    File: /games/daily-mystery/sw.js
+   
+   ★ CHANGE CACHE_VERSION to force update on all devices ★
    ═══════════════════════════════════════════════════════════ */
 
-var CACHE_NAME = 'dmm-v2';
+var CACHE_VERSION = 'dmm-v3';  // ← INCREMENT THIS every deploy
 
-var ASSETS_TO_CACHE = [
+var CACHE_FILES = [
   '/games/daily-mystery/',
   '/games/daily-mystery/index.html',
-  '/games/daily-mystery/result.html',
-  '/games/daily-mystery/country.html',
   '/games/daily-mystery/css/game.css',
   '/games/daily-mystery/css/animations.css',
   '/games/daily-mystery/js/data.js',
@@ -19,101 +19,94 @@ var ASSETS_TO_CACHE = [
   '/games/daily-mystery/js/ui.js',
   '/games/daily-mystery/js/share.js',
   '/games/daily-mystery/js/streak.js',
-  '/games/daily-mystery/js/app.js',
-  '/public/logo192.png',
-  '/public/logo512.png'
+  '/games/daily-mystery/js/app.js'
 ];
 
-// Install — cache all assets
-self.addEventListener('install', function (e) {
-  e.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(function (cache) {
-        console.log('[SW] Caching assets');
-        return cache.addAll(ASSETS_TO_CACHE);
-      })
-      .then(function () {
-        return self.skipWaiting();
-      })
+/* ── INSTALL: cache new files ── */
+self.addEventListener('install', function (event) {
+  console.log('[SW] Installing version:', CACHE_VERSION);
+
+  /* Skip waiting — activate immediately */
+  self.skipWaiting();
+
+  event.waitUntil(
+    caches.open(CACHE_VERSION).then(function (cache) {
+      console.log('[SW] Caching files');
+      return cache.addAll(CACHE_FILES);
+    })
   );
 });
 
-// Activate — clean old caches
-self.addEventListener('activate', function (e) {
-  e.waitUntil(
-    caches.keys()
-      .then(function (keys) {
-        return Promise.all(
-          keys
-            .filter(function (key) { return key !== CACHE_NAME; })
-            .map(function (key) {
-              console.log('[SW] Deleting old cache:', key);
-              return caches.delete(key);
-            })
-        );
-      })
-      .then(function () {
-        return self.clients.claim();
-      })
+/* ── ACTIVATE: delete ALL old caches ── */
+self.addEventListener('activate', function (event) {
+  console.log('[SW] Activating version:', CACHE_VERSION);
+
+  event.waitUntil(
+    caches.keys().then(function (cacheNames) {
+      return Promise.all(
+        cacheNames.map(function (name) {
+          if (name !== CACHE_VERSION) {
+            console.log('[SW] Deleting old cache:', name);
+            return caches.delete(name);
+          }
+        })
+      );
+    }).then(function () {
+      /* Take control of all tabs immediately */
+      return self.clients.claim();
+    })
   );
 });
 
-// Fetch — cache first for assets, network first for API
-self.addEventListener('fetch', function (e) {
-  var url = e.request.url;
+/* ── FETCH: Network-first strategy ──
+   Try network first. If fails, use cache.
+   This ensures users always get fresh files. */
+self.addEventListener('fetch', function (event) {
+  var request = event.request;
 
-  // Network first for Supabase API calls
-  if (url.includes('supabase.co')) {
-    e.respondWith(
-      fetch(e.request)
-        .catch(function () {
-          return new Response(
-            JSON.stringify([]),
-            { headers: { 'Content-Type': 'application/json' } }
-          );
-        })
-    );
-    return;
-  }
+  /* Skip non-GET requests */
+  if (request.method !== 'GET') return;
 
-  // Network first for Leaflet tiles
-  if (url.includes('tile') || url.includes('carto')) {
-    e.respondWith(
-      fetch(e.request)
-        .catch(function () {
-          return caches.match(e.request);
-        })
-    );
-    return;
-  }
+  /* Skip external requests (fonts, leaflet CDN, etc) */
+  if (!request.url.startsWith(self.location.origin)) return;
 
-  // Cache first for everything else
-  e.respondWith(
-    caches.match(e.request)
-      .then(function (cached) {
-        if (cached) return cached;
+  /* Skip Supabase API calls */
+  if (request.url.indexOf('supabase') !== -1) return;
 
-        return fetch(e.request)
-          .then(function (response) {
-            // Only cache valid responses
-            if (!response || response.status !== 200) {
-              return response;
-            }
-
-            var toCache = response.clone();
-            caches.open(CACHE_NAME)
-              .then(function (cache) {
-                cache.put(e.request, toCache);
-              });
-
-            return response;
-          })
-          .catch(function () {
-            // Offline fallback
-            if (e.request.destination === 'document') {
-              return caches.match('/games/daily-mystery/index.html');
-            }
+  event.respondWith(
+    fetch(request)
+      .then(function (networkResponse) {
+        /* Got fresh response — update cache */
+        if (networkResponse && networkResponse.status === 200) {
+          var responseClone = networkResponse.clone();
+          caches.open(CACHE_VERSION).then(function (cache) {
+            cache.put(request, responseClone);
           });
+        }
+        return networkResponse;
+      })
+      .catch(function () {
+        /* Network failed — try cache */
+        return caches.match(request).then(function (cachedResponse) {
+          return cachedResponse || new Response('Offline', {
+            status: 503,
+            statusText: 'Offline'
+          });
+        });
       })
   );
+});
+
+/* ── MESSAGE: Force refresh from page ── */
+self.addEventListener('message', function (event) {
+  if (event.data === 'skipWaiting') {
+    self.skipWaiting();
+  }
+  if (event.data === 'clearCache') {
+    caches.keys().then(function (names) {
+      names.forEach(function (name) {
+        caches.delete(name);
+      });
+    });
+  }
 });
