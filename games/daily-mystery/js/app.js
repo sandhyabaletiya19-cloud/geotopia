@@ -29,7 +29,6 @@
  var SUPABASE_URL = 'https://uubgjhchndervaamizzk.supabase.co';
   var SUPABASE_ANON_KEY = 'sb_publishable_L-bJ9sLh-hFvB_x0YSePsQ_Kaq34Okv';
 
-
   /* ─────────────────────────────────────────────
      MAP TILE SETS PER THEME
      ───────────────────────────────────────────── */
