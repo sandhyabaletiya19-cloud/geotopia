@@ -806,19 +806,19 @@
      11. CHECK FOR NEW DAY
      Reloads if UTC date changed since game loaded
      ══════════════════════════════════════════════ */
-  function _checkForNewDay() {
+    function _checkForNewDay() {
     GS = window.GameState;
     if (!GS || !GS.todayDate) return;
 
-    var now   = new Date();
-    var today = now.getUTCFullYear() + '-' +
-      String(now.getUTCMonth() + 1).padStart(2, '0') + '-' +
-      String(now.getUTCDate()).padStart(2, '0');
+    /* Use state.js exposed helper — same IST 8 AM logic */
+    var currentGameDate = window.getTodayGameDate
+      ? window.getTodayGameDate()
+      : GS.todayDate;
 
-    if (GS.todayDate !== today) {
-      console.log('[app.js] New day detected — reloading for fresh puzzle');
-      UI.showToast('🌍 New mystery country available! Reloading…', 'info', 2200);
-      setTimeout(function () { window.location.reload(); }, 2200);
+    if (GS.todayDate !== currentGameDate) {
+      console.log('[app.js] New game day (8 AM IST) — reloading…');
+      UI.showToast('🌍 New puzzle available at 8 AM IST! Reloading…', 'info', 2500);
+      setTimeout(function () { window.location.reload(); }, 2500);
     }
   }
 
