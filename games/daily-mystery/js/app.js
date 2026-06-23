@@ -529,67 +529,259 @@
   }
 
 
-  /* ══════════════════════════════════════════════
-     7. LOAD DAILY FACT BANNER
-     Shows a hint that NEVER reveals the country name.
-     Also tries Supabase for an AI-generated fact.
+    /* ══════════════════════════════════════════════
+     7. LOAD DAILY FACT — Enhanced with jokes & news
      ══════════════════════════════════════════════ */
   function loadDailyFact() {
     GS = window.GameState;
-
     var answer = GS ? GS.todayAnswer : null;
+
     if (!answer) {
-      UI.renderNewsFact('A mystery country awaits you today! 🌍');
+      UI.renderNewsFact('🌍 A mystery country awaits you today!');
       return;
     }
 
-    /* Generate a safe local hint first (instant) */
-    var localHint = _generateSafeHint(answer);
-    UI.renderNewsFact(localHint);
+    /* Generate multiple hints — show one in banner, rest in popup */
+    var bannerHint = _generateBannerHint(answer);
+    var detailHint = _generateDetailHint(answer);
+    var joke       = _generateGeographyJoke();
 
-    /* Try Supabase AI fact (async, may override local hint) */
-    if (SUPABASE_URL && SUPABASE_ANON_KEY &&
-        SUPABASE_URL.indexOf('XXXX') === -1) {
+    /* Set banner text */
+    UI.renderNewsFact(bannerHint);
 
-      var today     = GS.todayDate;
-      var lang      = I18N && I18N.getLang ? I18N.getLang() : 'en';
-      var factField = (lang === 'hi' || lang === 'hinglish')
-        ? 'fact_hi' : 'fact_en';
+    /* Store for popup */
+    window._dailyHints = {
+      banner:  bannerHint,
+      detail:  detailHint,
+      joke:    joke,
+      funFact: answer.fun_fact || ''
+    };
 
-      var url = SUPABASE_URL
-        + '/rest/v1/daily_facts'
-        + '?date=eq.' + today
-        + '&select=' + factField
-        + '&limit=1';
+    /* Wire up news banner click → popup */
+    _wireNewsBanner();
 
-      fetch(url, {
-        method: 'GET',
-        headers: {
-          'apikey':        SUPABASE_ANON_KEY,
-          'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
-          'Content-Type':  'application/json'
-        }
-      })
-      .then(function (res) {
-        if (!res.ok) throw new Error('Supabase ' + res.status);
-        return res.json();
-      })
-      .then(function (data) {
-        if (data && data.length > 0 && data[0][factField]) {
-          /* Validate: AI fact must NOT contain the country name */
-          var fact = data[0][factField];
-          var name = answer.name.toLowerCase();
-          if (fact.toLowerCase().indexOf(name) === -1) {
-            UI.renderNewsFact(fact);
-          }
-          /* else: keep local safe hint */
-        }
-      })
-      .catch(function (err) {
-        console.warn('[app.js] Supabase fact fetch failed:', err.message);
-        /* Local hint already showing — no action needed */
+    console.log('[app.js] News banner + fun facts loaded');
+
+    /* Try Supabase for AI-generated news (async) */
+    _trySupabaseFact(answer);
+  }
+
+  /* ── Banner hint (short, catchy, one-liner) ── */
+  function _generateBannerHint(c) {
+    var dayNum = _getDayNumber ? _getDayNumber() : 1;
+    var hints = [];
+
+    /* Geography hints that DON'T reveal the name */
+    hints.push('🌍 Today\'s country is in ' + c.continent + '! Can you guess?');
+    hints.push('📍 Hiding somewhere in ' + c.subregion + '… hunt it down!');
+
+    var hLat = c.hemisphere_lat === 'N' ? 'Northern' : 'Southern';
+    hints.push('🧭 Look in the ' + hLat + ' Hemisphere today!');
+
+    if (c.island) hints.push('🏝️ Today\'s mystery is an island nation!');
+    if (c.landlocked) hints.push('🏔️ No beaches here — today\'s country is landlocked!');
+
+    if (c.population > 100000000)
+      hints.push('👥 Over 100 million people live in today\'s mystery!');
+    else if (c.population < 1000000)
+      hints.push('🤫 Tiny population — under 1 million people!');
+
+    if (c.area > 1000000) hints.push('🐘 This country is MASSIVE — over 1M km²!');
+    else if (c.area < 10000) hints.push('🔬 Today\'s country is TINY!');
+
+    if (c.neighbors && c.neighbors.length > 6)
+      hints.push('🤝 So many borders! ' + c.neighbors.length + ' neighboring countries!');
+    else if (c.neighbors && c.neighbors.length === 0)
+      hints.push('🏝️ Zero land borders — completely surrounded by water!');
+
+    /* Capital first letter */
+    if (c.capital) {
+      hints.push('🏛️ Its capital starts with "' + c.capital.charAt(0).toUpperCase() + '"');
+    }
+
+    /* Climate */
+    var climEmoji = {
+      'Tropical': '🌴', 'Arid': '🏜️', 'Temperate': '🌤️',
+      'Continental': '❄️', 'Polar': '🧊', 'Mediterranean': '☀️'
+    };
+    if (c.climate && climEmoji[c.climate]) {
+      hints.push(climEmoji[c.climate] + ' ' + c.climate + ' climate today!');
+    }
+
+    /* Name letter count */
+    hints.push('🔤 The country name has ' + c.name.length + ' letters — starting with "' + c.name.charAt(0).toUpperCase() + '"');
+
+    /* Flag hint */
+    hints.push(c.flag + ' Recognize this flag? It belongs to today\'s mystery!');
+
+    /* Neighbor reveal */
+    if (c.neighbors && c.neighbors.length > 0) {
+      var rn = c.neighbors[dayNum % c.neighbors.length];
+      var nd = window.COUNTRY_LOOKUP ? window.COUNTRY_LOOKUP[rn] : null;
+      if (nd) {
+        hints.push(nd.flag + ' ' + nd.name + ' is a neighbor of today\'s mystery!');
+      }
+    }
+
+    /* Pick based on day — different hint each day */
+    var idx = dayNum % hints.length;
+    return hints[idx];
+  }
+
+  /* ── Detail hint (longer, for popup) ── */
+  function _generateDetailHint(c) {
+    var details = [];
+
+    details.push('This mystery country is located in ' + c.subregion + ', ' + c.continent + '.');
+
+    if (c.area > 1000000) details.push('It\'s a large country covering over ' + Math.round(c.area / 1000) + ',000 km².');
+    else details.push('It covers about ' + c.area.toLocaleString() + ' km².');
+
+    details.push('Population: approximately ' + (c.population / 1000000).toFixed(1) + ' million people.');
+
+    if (c.climate) details.push('Climate type: ' + c.climate);
+
+    if (c.landlocked) details.push('It\'s landlocked — no direct access to the ocean.');
+    if (c.island) details.push('It\'s an island nation, surrounded by water.');
+
+    if (c.neighbors && c.neighbors.length > 0) {
+      details.push('It borders ' + c.neighbors.length + ' countries.');
+    }
+
+    return details.join(' ');
+  }
+
+  /* ── Geography jokes (fun, random) ── */
+  function _generateGeographyJoke() {
+    var jokes = [
+      '😄 Why did the map go to therapy? It had too many issues with borders!',
+      '🌍 What\'s a geographer\'s favorite snack? Map-le syrup!',
+      '🧭 I got lost reading a map… I guess I took a wrong turn at the legend!',
+      '🗺️ Why don\'t maps ever win arguments? They always fold!',
+      '🌊 What did the ocean say to the beach? Nothing, it just waved!',
+      '🏔️ I tried to write a joke about mountains, but I couldn\'t peak!',
+      '🐘 Why don\'t elephants use maps? They never forget where they\'ve been!',
+      '🏝️ What\'s an island\'s favorite letter? "i" — because it\'s surrounded by "sea"!',
+      '🌋 Did you hear about the volcano? It just blew up on social media!',
+      '🐧 Why do penguins know all the capitals? They\'re always at the South Pole of knowledge!',
+      '🦁 What\'s a lion\'s favorite country? Mane-anmar! 🇲🇲',
+      '🍕 Why does Italy look like a boot? Because you can\'t fit that many people in a sneaker!',
+      '🎭 Geography class is the only place where "capital" punishment means studying!',
+      '🌮 What do you call a map expert who loves tacos? A Mexi-cartographer!',
+      '📚 I failed my geography test because I couldn\'t find my way through it!',
+      '🗻 Mount Everest: the world\'s tallest thing nobody asked to climb!',
+      '🌊 The Dead Sea isn\'t dead, it just can\'t swim!',
+      '🏖️ I\'d tell you a joke about the equator, but it\'s too long!',
+      '🐫 Why do camels live in the desert? Because they can\'t afford the rent in Dubai!',
+      '🦘 Australia: where even the cute animals are trying to fight you!',
+      '🧊 Iceland isn\'t icy and Greenland isn\'t green. Geography: the original clickbait!',
+      '🇫🇷 France gave us the Statue of Liberty. We gave them Jerry Lewis. Fair trade?',
+      '🗺️ My geography teacher was the best — she really knew how to put me in my place!',
+      '🌍 Earth has 197 countries. Today you only need to find ONE!',
+      '📍 Fun fact: You\'re closer to the answer than you think… probably!',
+      '🧠 Pro tip: The answer is NOT Atlantis. We checked.',
+      '🔥 Your geography skills are about to be tested. No pressure!',
+      '🎯 Remember: it\'s not about winning — wait, yes it is!',
+      '☕ Geography is best served with coffee. Trust us.',
+      '🧭 Columbus didn\'t have Google Maps. You don\'t either. Good luck!'
+    ];
+
+    var dayNum = _getDayNumber ? _getDayNumber() : 1;
+    return jokes[dayNum % jokes.length];
+  }
+
+  /* ── Wire news banner → fun fact popup ── */
+  function _wireNewsBanner() {
+    var banner = document.getElementById('news-fact');
+    var popup  = document.getElementById('fun-fact-popup');
+    var closeBtn = document.getElementById('fun-fact-close');
+
+    if (!banner || !popup) return;
+
+    /* Add tap hint */
+    var tapHint = banner.querySelector('.news-tap-hint');
+    if (!tapHint) {
+      tapHint = document.createElement('span');
+      tapHint.className = 'news-tap-hint';
+      tapHint.textContent = 'tap for more';
+      banner.appendChild(tapHint);
+    }
+
+    /* Open popup */
+    banner.addEventListener('click', function () {
+      var hints = window._dailyHints;
+      if (!hints) return;
+
+      var textEl = document.getElementById('fun-fact-text');
+      var jokeEl = document.getElementById('fun-fact-joke');
+
+      if (textEl) textEl.textContent = hints.detail || hints.banner;
+      if (jokeEl) jokeEl.textContent = hints.joke || '';
+
+      popup.classList.add('visible');
+      popup.setAttribute('aria-hidden', 'false');
+    });
+
+    /* Close popup */
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function () {
+        popup.classList.remove('visible');
+        popup.setAttribute('aria-hidden', 'true');
       });
     }
+
+    /* Close on backdrop click */
+    popup.addEventListener('click', function (e) {
+      if (e.target === popup) {
+        popup.classList.remove('visible');
+        popup.setAttribute('aria-hidden', 'true');
+      }
+    });
+  }
+
+  /* ── Try Supabase for AI news fact (async) ── */
+  function _trySupabaseFact(answer) {
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
+    if (SUPABASE_URL.indexOf('XXXX') !== -1) return;
+
+    GS = window.GameState;
+    var today     = GS.todayDate;
+    var lang      = I18N && I18N.getLang ? I18N.getLang() : 'en';
+    var factField = (lang === 'hi' || lang === 'hinglish') ? 'fact_hi' : 'fact_en';
+
+    var url = SUPABASE_URL + '/rest/v1/daily_facts?date=eq.' + today + '&select=' + factField + '&limit=1';
+
+    fetch(url, {
+      method: 'GET',
+      headers: {
+        'apikey':        SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+        'Content-Type':  'application/json'
+      }
+    })
+    .then(function (res) {
+      if (!res.ok) throw new Error('Supabase ' + res.status);
+      return res.json();
+    })
+    .then(function (data) {
+      if (!data || !data.length || !data[0][factField]) return;
+
+      var fact = data[0][factField];
+      var name = answer.name.toLowerCase();
+
+      /* Safety: must NOT contain the country name */
+      if (fact.toLowerCase().indexOf(name) === -1) {
+        UI.renderNewsFact('📰 ' + fact);
+
+        /* Also update popup detail */
+        if (window._dailyHints) {
+          window._dailyHints.detail = fact;
+        }
+      }
+    })
+    .catch(function (err) {
+      console.warn('[app.js] Supabase fact fetch failed:', err.message);
+    });
   }
 
 
@@ -826,31 +1018,42 @@
   /* ══════════════════════════════════════════════
      12. DISTANCE FEEDBACK HELPERS
      ══════════════════════════════════════════════ */
-  var _distanceMsgs = {
+   var _distanceMsgs = {
     'burning': [
-      'You\'re basically standing on it! 🔥',
-      'So close you can feel the heat! 🌋',
-      'Burning hot! Almost there! 🫣'
+      'OMG you\'re basically THERE! 🔥🔥🔥',
+      'SO close you can smell the local food! 🫣',
+      'Practically standing on the border! 🔥',
+      'Just a stone\'s throw away! ⚡',
+      'Your geography teacher would CRY tears of joy! 😭'
     ],
     'hot': [
-      'Sizzling! You\'re very close! 🥵',
-      'Getting really warm! 🌡️',
-      'Almost there — keep going! 🎯'
+      'Getting REALLY warm! You\'re on fire! 🥵',
+      'Sizzling! Just a bit further! 🌡️',
+      'Almost there — don\'t give up now! 🎯',
+      'You can almost see it from here! 👀',
+      'Warmer warmer warmer… HOT! 🔥'
     ],
     'warm': [
-      'Warming up nicely! 🌤️',
-      'You\'re in the neighbourhood! 🏘️',
-      'Closer than you think! 😏'
+      'Warming up! You\'re heading the right direction! 🌤️',
+      'Not bad! You\'re in the neighborhood! 🏘️',
+      'Getting closer! Keep going! 😏',
+      'The compass is smiling! You\'re on track! 🧭',
+      'Warm like a summer breeze! 🌊'
     ],
     'cold': [
-      'A bit chilly — keep exploring! 🌬️',
-      'You\'re drifting away... 🧊',
-      'Far but not hopeless! 🗺️'
+      'Brrr… that\'s a bit far! Keep exploring! 🌬️',
+      'Wrong neighborhood! Try another continent maybe? 🗺️',
+      'The answer just texted: "I\'m not even close to there" 📱',
+      'Cold but not hopeless! Think bigger! ❄️',
+      'Geography is hard, isn\'t it? Keep trying! 📚'
     ],
     'freezing': [
-      'Way off! Think completely differently 🥶',
-      'That\'s very far away! ❄️',
-      'A different part of the world entirely! 🌍'
+      'Ice cold! 🥶 You\'re on a completely different planet!',
+      'That\'s SO far away the answer filed a restraining order! 😂',
+      'Wrong side of the world! Try spinning the globe! 🌍',
+      'Even a GPS would be confused by this guess! 📡',
+      'That guess just got its own ZIP code… in a different universe! 🚀',
+      'Plot twist: the answer is NOT there! 🎬'
     ]
   };
 
