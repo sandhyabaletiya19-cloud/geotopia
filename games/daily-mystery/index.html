@@ -13,271 +13,152 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="format-detection" content="telephone=no" />
 
-  <!-- Open Graph -->
   <meta property="og:title" content="Map Mystery — Dharaverse Daily" />
   <meta property="og:description" content="Guess the country in 6 tries. New hints unlock each guess!" />
   <meta property="og:url" content="https://dharaverse.com/games/daily-mystery/" />
   <meta property="og:type" content="website" />
-
-  <!-- Twitter -->
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="Map Mystery — Dharaverse" />
 
   <title>Map Mystery — Dharaverse Daily</title>
 
-  <!-- Emoji favicon — no PNG needed -->
+  <!-- Emoji favicon -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌍</text></svg>" />
-  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌍</text></svg>" />
 
-  <!-- PWA Manifest -->
   <link rel="manifest" href="/games/daily-mystery/manifest.json" />
 
-  <!-- Preconnect -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://unpkg.com" crossorigin />
 
-  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-
-  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
 
-  <!-- Game Styles -->
-  <link rel="stylesheet" href="css/game.css" />
-  <link rel="stylesheet" href="css/animations.css" />
+  <!-- Cache-busted styles -->
+  <link rel="stylesheet" href="css/game.css?v=3" />
+  <link rel="stylesheet" href="css/animations.css?v=3" />
 
-  <!-- Leaflet JS — in <head> so L is defined before game scripts -->
+  <!-- Leaflet JS in head -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
   <style>
-    /* Critical: prevent FOUC and fix scroll */
-    html {
-      height: 100%;
-      overflow: hidden;
-    }
-    body {
-      height: 100%;
-      overflow: hidden;
-      margin: 0;
-      /* NO position:fixed — kills mobile scroll */
-    }
-    #game-wrapper {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      height: 100dvh;
-      overflow: hidden;
-    }
-    #game-map {
-      width: 100%;
-      height: 100%;
-      min-height: 180px;
-      background: #0a0a2e;
-    }
-    #game-area {
-      flex: 1;
-      overflow-y: auto;
-      overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
-    }
-    #loading-screen {
-      position: fixed;
-      inset: 0;
-      z-index: 600;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #0a0a2e;
-    }
+    html { height: 100%; overflow: hidden; }
+    body { height: 100%; overflow: hidden; margin: 0; }
+    #game-wrapper { display: flex; flex-direction: column; height: 100%; height: 100dvh; overflow: hidden; }
+    #game-map { width: 100%; height: 100%; min-height: 180px; background: #0a0a2e; }
+    #game-area { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+    #loading-screen { position: fixed; inset: 0; z-index: 600; display: flex; align-items: center; justify-content: center; background: #0a0a2e; }
     .leaflet-container { background: #0a0a2e !important; }
   </style>
 </head>
 
 <body>
 
-  <!-- ═══ LOADING SCREEN ═══ -->
-  <div id="loading-screen" aria-live="polite" aria-label="Loading game">
+  <!-- ★ FORCE CLEAR OLD CACHE — remove after 1 week ★ -->
+  <script>
+    (function () {
+      var V = '3';
+      var K = 'dmm_cache_cleared';
+      if (localStorage.getItem(K) !== V) {
+        if ('caches' in window) {
+          caches.keys().then(function (n) { n.forEach(function (c) { caches.delete(c); }); });
+        }
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function (r) { r.forEach(function (s) { s.unregister(); }); });
+        }
+        localStorage.setItem(K, V);
+        setTimeout(function () { window.location.reload(true); }, 800);
+      }
+    })();
+  </script>
+
+  <!-- LOADING -->
+  <div id="loading-screen" aria-live="polite">
     <div class="loading-inner">
       <div class="loading-globe" aria-hidden="true">🌍</div>
       <p class="loading-text">Finding today's mystery country…</p>
-      <div class="loading-bar" role="progressbar">
-        <div class="loading-bar-fill"></div>
-      </div>
+      <div class="loading-bar" role="progressbar"><div class="loading-bar-fill"></div></div>
     </div>
   </div>
 
-  <!-- ═══ TOASTS ═══ -->
-  <div id="toast-container" aria-live="assertive" aria-atomic="true" role="status"></div>
+  <!-- TOASTS -->
+  <div id="toast-container" aria-live="assertive" role="status"></div>
 
-  <!-- ═══ HOW TO PLAY MODAL ═══ -->
-  <div
-    id="modal-overlay"
-    class="modal-overlay"
-    role="dialog"
-    aria-modal="true"
-    aria-hidden="true"
-    aria-labelledby="modal-title"
-  >
+  <!-- MODAL -->
+  <div id="modal-overlay" class="modal-overlay" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="modal-title">
     <div id="how-to-play-modal" class="modal glass-card" role="document">
-
       <div class="modal-header">
         <h2 id="modal-title" class="modal-title">How to Play 🗺️</h2>
         <button id="close-modal-btn" class="modal-close" aria-label="Close" type="button">✕</button>
       </div>
-
       <div class="modal-body">
-        <p class="modal-intro">
-          Guess the mystery country in <strong>6 tries</strong>.
-          Each wrong guess unlocks a <strong>new hint</strong>!
-        </p>
-
+        <p class="modal-intro">Guess the mystery country in <strong>6 tries</strong>. Each wrong guess unlocks a <strong>new hint</strong>!</p>
         <div class="modal-steps">
-          <div class="modal-step">
-            <span class="step-icon">🔍</span>
-            <div class="step-text">
-              <strong>Type any country</strong>
-              <span>Start with your best guess — no hints upfront</span>
-            </div>
-          </div>
-          <div class="modal-step">
-            <span class="step-icon">📏</span>
-            <div class="step-text">
-              <strong>Get distance + direction</strong>
-              <span>See how far and which way the answer is</span>
-            </div>
-          </div>
-          <div class="modal-step">
-            <span class="step-icon">💡</span>
-            <div class="step-text">
-              <strong>Hints unlock after each guess</strong>
-              <span>Fun fact → Direction → Climate → Sports → Continent → Letters</span>
-            </div>
-          </div>
-          <div class="modal-step">
-            <span class="step-icon">🏆</span>
-            <div class="step-text">
-              <strong>Find it in fewer tries!</strong>
-              <span>Build your streak and share your result</span>
-            </div>
-          </div>
+          <div class="modal-step"><span class="step-icon">🔍</span><div class="step-text"><strong>Type any country</strong><span>Start with your best guess</span></div></div>
+          <div class="modal-step"><span class="step-icon">📏</span><div class="step-text"><strong>Distance + direction</strong><span>See how far and which way</span></div></div>
+          <div class="modal-step"><span class="step-icon">💡</span><div class="step-text"><strong>Hints unlock each guess</strong><span>Fact → Direction → Climate → Sports → Continent → Letters</span></div></div>
+          <div class="modal-step"><span class="step-icon">🏆</span><div class="step-text"><strong>Find it faster!</strong><span>Build your streak & share</span></div></div>
         </div>
-
-        <!-- Hint unlock legend -->
         <div class="modal-feedback-legend">
-          <h3>🎯 Hint Unlock System</h3>
-          <div class="legend-row">
-            <span class="legend-dot" style="background:#60A5FA;box-shadow:0 0 6px #60A5FA"></span>
-            <span><strong>Guess 1:</strong> Fun fact (national animal / flag)</span>
-          </div>
-          <div class="legend-row">
-            <span class="legend-dot" style="background:#FB923C;box-shadow:0 0 6px #FB923C"></span>
-            <span><strong>Guess 2:</strong> Direction from your guess</span>
-          </div>
-          <div class="legend-row">
-            <span class="legend-dot" style="background:#34D399;box-shadow:0 0 6px #34D399"></span>
-            <span><strong>Guess 3:</strong> Climate + landlocked status</span>
-          </div>
-          <div class="legend-row">
-            <span class="legend-dot" style="background:#A855F7;box-shadow:0 0 6px #A855F7"></span>
-            <span><strong>Guess 4:</strong> Famous sports achievement</span>
-          </div>
-          <div class="legend-row">
-            <span class="legend-dot" style="background:#F472B6;box-shadow:0 0 6px #F472B6"></span>
-            <span><strong>Guess 5:</strong> Continent name</span>
-          </div>
-          <div class="legend-row">
-            <span class="legend-dot" style="background:#FB7185;box-shadow:0 0 6px #FB7185"></span>
-            <span><strong>Guess 6:</strong> First &amp; last letter + landmark ⚠️</span>
-          </div>
+          <h3>🎯 Hint System</h3>
+          <div class="legend-row"><span class="legend-dot" style="background:#60A5FA;box-shadow:0 0 6px #60A5FA"></span><span><strong>G1:</strong> Fun fact / animal / flag</span></div>
+          <div class="legend-row"><span class="legend-dot" style="background:#FB923C;box-shadow:0 0 6px #FB923C"></span><span><strong>G2:</strong> Direction from guess</span></div>
+          <div class="legend-row"><span class="legend-dot" style="background:#34D399;box-shadow:0 0 6px #34D399"></span><span><strong>G3:</strong> Climate + landlocked</span></div>
+          <div class="legend-row"><span class="legend-dot" style="background:#A855F7;box-shadow:0 0 6px #A855F7"></span><span><strong>G4:</strong> Sports achievement</span></div>
+          <div class="legend-row"><span class="legend-dot" style="background:#F472B6;box-shadow:0 0 6px #F472B6"></span><span><strong>G5:</strong> Continent name</span></div>
+          <div class="legend-row"><span class="legend-dot" style="background:#FB7185;box-shadow:0 0 6px #FB7185"></span><span><strong>G6:</strong> First & last letter ⚠️</span></div>
         </div>
-
-        <!-- Distance legend -->
         <div class="modal-feedback-legend">
-          <h3>📏 Distance Colors</h3>
-          <div class="legend-row">
-            <span class="legend-dot correct"></span>
-            <span>🔥 Burning hot — under 200 km away</span>
-          </div>
-          <div class="legend-row">
-            <span class="legend-dot close"></span>
-            <span>🌡️ Getting warm — 200 to 1,000 km</span>
-          </div>
-          <div class="legend-row">
-            <span class="legend-dot wrong"></span>
-            <span>❄️ Far away — over 1,000 km</span>
-          </div>
+          <h3>📏 Distance</h3>
+          <div class="legend-row"><span class="legend-dot correct"></span><span>🔥 Under 200 km</span></div>
+          <div class="legend-row"><span class="legend-dot close"></span><span>🌡️ 200–1,000 km</span></div>
+          <div class="legend-row"><span class="legend-dot wrong"></span><span>❄️ Over 1,000 km</span></div>
         </div>
-
-        <div class="modal-news-note">
-          <span>📰</span>
-          <p>Each day's country may be connected to real news. Watch the banner!</p>
-        </div>
+        <div class="modal-news-note"><span>📰</span><p>Watch the hint banner for daily clues!</p></div>
       </div>
-
       <div class="modal-footer">
-        <button id="close-modal-btn-bottom" class="btn-primary" type="button">
-          Let's Play! 🚀
-        </button>
+        <button id="close-modal-btn-bottom" class="btn-primary" type="button">Let's Play! 🚀</button>
       </div>
-
     </div>
   </div>
 
-
-  <!-- ═══════════════════════════════════════════
-       MAIN GAME WRAPPER
-       ═══════════════════════════════════════════ -->
+  <!-- ═══ GAME WRAPPER ═══ -->
   <div id="game-wrapper">
 
     <!-- HEADER -->
     <header id="game-header" role="banner">
       <div class="header-left">
-        <a href="/games/" class="header-back" aria-label="Back to games">
-          <span aria-hidden="true">←</span>
-          <span class="header-back-text">Games</span>
-        </a>
+        <a href="/games/" class="header-back"><span aria-hidden="true">←</span><span class="header-back-text">Games</span></a>
       </div>
-
       <div class="header-center">
-        <h1 class="header-title">
-          <span class="header-globe" aria-hidden="true">🌍</span>
-          Map Mystery
-        </h1>
+        <h1 class="header-title"><span class="header-globe" aria-hidden="true">🌍</span> Map Mystery</h1>
         <span id="day-number">Day #1</span>
       </div>
-
       <div class="header-right">
-        <div id="streak-display" class="streak-badge" role="status" title="Your winning streak">
-          <span class="streak-fire" aria-hidden="true">🔥</span>
-          <span class="streak-count">0</span>
+        <div id="streak-display" class="streak-badge" role="status" title="Streak">
+          <span class="streak-fire" aria-hidden="true">🔥</span><span class="streak-count">0</span>
         </div>
-        <button id="how-to-play-btn" class="btn-icon" aria-label="How to play" type="button">
-          <span aria-hidden="true">?</span>
-        </button>
+        <button id="how-to-play-btn" class="btn-icon" aria-label="How to play" type="button"><span aria-hidden="true">?</span></button>
       </div>
     </header>
 
-    <!-- NEWS / HINT BANNER -->
-    <div id="news-fact" role="complementary" aria-label="Today's hint">
+    <!-- NEWS BANNER -->
+    <div id="news-fact" role="complementary" aria-label="Hint">
       <span class="news-icon" aria-hidden="true">💡</span>
-      <span class="news-text">Loading today's hint…</span>
+      <span class="news-text">Loading hint…</span>
     </div>
 
     <!-- MAP -->
     <section id="map-section" class="map-section" aria-label="World map">
-      <div id="game-map" role="application" tabindex="0" aria-label="Interactive world map"></div>
+      <div id="game-map" role="application" tabindex="0"></div>
       <div class="map-overlay-top">
-        <div id="attempts-remaining" class="attempts-pill" aria-live="polite" role="status">
-          6 guesses left
-        </div>
+        <div id="attempts-remaining" class="attempts-pill" aria-live="polite" role="status">6 guesses left</div>
       </div>
     </section>
 
-    <!-- GAME AREA — scrollable on mobile -->
+    <!-- GAME AREA — scrollable -->
     <main id="game-area" role="main">
 
-      <!-- Column headers (shown after first guess) -->
       <div class="attempt-headers" id="attempt-headers" aria-hidden="true" hidden>
         <span class="col-header col-country">Country</span>
         <span class="col-header col-distance">Distance</span>
@@ -286,44 +167,21 @@
         <span class="col-header col-size">Size</span>
       </div>
 
-      <!-- Guess input -->
       <div class="guess-section">
         <form id="guess-form" class="guess-form" autocomplete="off" novalidate>
           <div class="input-wrapper">
             <span class="input-icon" aria-hidden="true">🔍</span>
-            <input
-              id="guess-input"
-              class="guess-input"
-              type="text"
-              placeholder="Type a country name…"
-              aria-label="Guess a country"
-              aria-autocomplete="list"
-              aria-controls="autocomplete-list"
-              aria-expanded="false"
-              maxlength="60"
-              spellcheck="false"
-              autocorrect="off"
-              autocapitalize="words"
-              enterkeyhint="search"
-              inputmode="text"
-            />
-            <button
-              class="input-clear-btn"
-              type="button"
-              aria-label="Clear"
-              id="input-clear-btn"
-              tabindex="-1"
-              hidden
-            >✕</button>
+            <input id="guess-input" class="guess-input" type="text" placeholder="Type a country name…"
+              aria-label="Guess a country" aria-autocomplete="list" aria-controls="autocomplete-list"
+              aria-expanded="false" maxlength="60" spellcheck="false" autocorrect="off"
+              autocapitalize="words" enterkeyhint="search" inputmode="text" />
+            <button class="input-clear-btn" type="button" aria-label="Clear" id="input-clear-btn" tabindex="-1" hidden>✕</button>
           </div>
-          <button type="submit" class="btn-primary btn-guess" id="guess-submit-btn">
-            Guess
-          </button>
+          <button type="submit" class="btn-primary btn-guess" id="guess-submit-btn">Guess</button>
         </form>
         <ul id="autocomplete-list" class="autocomplete-list" role="listbox" hidden></ul>
       </div>
 
-      <!-- Attempts — guess rows injected here by ui.js -->
       <div id="attempts-container" class="attempts-container" role="list" aria-live="polite">
         <div class="attempts-empty" id="attempts-empty">
           <span class="empty-icon" aria-hidden="true">🧭</span>
@@ -332,41 +190,32 @@
         </div>
       </div>
 
-      <!-- Game over banner — inside scrollable area -->
+      <!-- Game over — inside scrollable area -->
       <div id="game-over-banner" role="alert" aria-live="assertive" hidden>
         <div class="game-over-inner glass-card">
-
           <div class="game-over-won" id="game-over-won" hidden>
             <div class="game-over-emoji" aria-hidden="true">🎉</div>
             <h2 class="game-over-title">You got it!</h2>
             <p class="game-over-subtitle" id="game-over-win-message"></p>
           </div>
-
           <div class="game-over-lost" id="game-over-lost" hidden>
             <div class="game-over-emoji" aria-hidden="true">😅</div>
             <h2 class="game-over-title">So close!</h2>
-            <p class="game-over-subtitle">
-              The answer was:
-              <strong id="game-over-answer" class="game-over-answer-name"></strong>
-            </p>
+            <p class="game-over-subtitle">The answer was: <strong id="game-over-answer" class="game-over-answer-name"></strong></p>
           </div>
-
           <div class="game-over-streak">
             <span class="streak-fire" aria-hidden="true">🔥</span>
             <span id="game-over-streak-count">0</span>
             <span>day streak</span>
           </div>
-
           <div class="game-over-actions">
             <button id="share-btn" class="btn-primary btn-share" type="button">Share 📤</button>
             <a id="result-link" href="result.html" class="btn-secondary">Stats 📊</a>
           </div>
-
-                  <div class="next-game-timer">
-          <span class="timer-label">Next puzzle at 8:00 AM IST</span>
-          <span id="next-game-countdown" class="timer-value" aria-live="polite">--:--:--</span>
-        </div>
-
+          <div class="next-game-timer">
+            <span class="timer-label">Next puzzle at 8:00 AM IST</span>
+            <span id="next-game-countdown" class="timer-value" aria-live="polite">--:--:--</span>
+          </div>
         </div>
       </div>
 
@@ -374,34 +223,18 @@
 
     <!-- DESKTOP SIDEBAR -->
     <aside id="desktop-sidebar" aria-label="Statistics">
-
-      <!-- Stats -->
       <div class="sidebar-card glass-card">
         <h3 class="sidebar-title">📊 Your Stats</h3>
         <div class="stat-grid">
-          <div class="stat-item">
-            <span class="stat-value" id="stat-total-games">0</span>
-            <span class="stat-label">Played</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value" id="stat-win-pct">0%</span>
-            <span class="stat-label">Win Rate</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value" id="stat-streak">0</span>
-            <span class="stat-label">Streak 🔥</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value" id="stat-best-streak">0</span>
-            <span class="stat-label">Best</span>
-          </div>
+          <div class="stat-item"><span class="stat-value" id="stat-total-games">0</span><span class="stat-label">Played</span></div>
+          <div class="stat-item"><span class="stat-value" id="stat-win-pct">0%</span><span class="stat-label">Win Rate</span></div>
+          <div class="stat-item"><span class="stat-value" id="stat-streak">0</span><span class="stat-label">Streak 🔥</span></div>
+          <div class="stat-item"><span class="stat-value" id="stat-best-streak">0</span><span class="stat-label">Best</span></div>
         </div>
       </div>
-
-      <!-- Distribution -->
       <div class="sidebar-card glass-card">
-        <h3 class="sidebar-title">🎯 Guess Distribution</h3>
-        <div id="guess-distribution" class="guess-distribution" role="img" aria-label="Distribution">
+        <h3 class="sidebar-title">🎯 Distribution</h3>
+        <div id="guess-distribution" class="guess-distribution" role="img">
           <div class="dist-row" data-guess="1"><span class="dist-label">1</span><div class="dist-bar-wrap"><div class="dist-bar" style="width:0%"><span>0</span></div></div></div>
           <div class="dist-row" data-guess="2"><span class="dist-label">2</span><div class="dist-bar-wrap"><div class="dist-bar" style="width:0%"><span>0</span></div></div></div>
           <div class="dist-row" data-guess="3"><span class="dist-label">3</span><div class="dist-bar-wrap"><div class="dist-bar" style="width:0%"><span>0</span></div></div></div>
@@ -410,82 +243,65 @@
           <div class="dist-row" data-guess="6"><span class="dist-label">6</span><div class="dist-bar-wrap"><div class="dist-bar" style="width:0%"><span>0</span></div></div></div>
         </div>
       </div>
-
-      <!-- Hint legend -->
       <div class="sidebar-card glass-card">
-        <h3 class="sidebar-title">💡 Hint System</h3>
+        <h3 class="sidebar-title">💡 Hints</h3>
         <div class="hint-legend-list">
-          <div class="hint-legend-row">
-            <span class="hint-chip hint-blue" style="animation:none">💡 G1</span>
-            <span>Fun fact</span>
-          </div>
-          <div class="hint-legend-row">
-            <span class="hint-chip hint-orange" style="animation:none">🧭 G2</span>
-            <span>Direction</span>
-          </div>
-          <div class="hint-legend-row">
-            <span class="hint-chip hint-green" style="animation:none">🌡️ G3</span>
-            <span>Climate</span>
-          </div>
-          <div class="hint-legend-row">
-            <span class="hint-chip hint-purple" style="animation:none">🏆 G4</span>
-            <span>Sports</span>
-          </div>
-          <div class="hint-legend-row">
-            <span class="hint-chip hint-pink" style="animation:none">📍 G5</span>
-            <span>Continent</span>
-          </div>
-          <div class="hint-legend-row">
-            <span class="hint-chip hint-red" style="animation:none">🔤 G6</span>
-            <span>Letters ⚠️</span>
-          </div>
+          <div class="hint-legend-row"><span class="hint-chip hint-blue" style="animation:none">💡 G1</span><span>Fun fact</span></div>
+          <div class="hint-legend-row"><span class="hint-chip hint-orange" style="animation:none">🧭 G2</span><span>Direction</span></div>
+          <div class="hint-legend-row"><span class="hint-chip hint-green" style="animation:none">🌡️ G3</span><span>Climate</span></div>
+          <div class="hint-legend-row"><span class="hint-chip hint-purple" style="animation:none">🏆 G4</span><span>Sports</span></div>
+          <div class="hint-legend-row"><span class="hint-chip hint-pink" style="animation:none">📍 G5</span><span>Continent</span></div>
+          <div class="hint-legend-row"><span class="hint-chip hint-red" style="animation:none">🔤 G6</span><span>Letters ⚠️</span></div>
         </div>
       </div>
-
-      <!-- Quick links -->
       <div class="sidebar-card glass-card">
         <h3 class="sidebar-title">🔗 Explore</h3>
         <div class="sidebar-links">
-          <a href="/atlas/" class="sidebar-link">
-            <span>🗺️</span> World Atlas
-          </a>
-          <a href="/encyclopedia/" class="sidebar-link">
-            <span>📚</span> Encyclopedia
-          </a>
-          <a href="/games/" class="sidebar-link">
-            <span>🎮</span> More Games
-          </a>
-          <a href="https://dharaverse.com" class="sidebar-link">
-            <span>🏠</span> Dharaverse
-          </a>
+          <a href="/atlas/" class="sidebar-link"><span>🗺️</span> World Atlas</a>
+          <a href="/encyclopedia/" class="sidebar-link"><span>📚</span> Encyclopedia</a>
+          <a href="/games/" class="sidebar-link"><span>🎮</span> More Games</a>
+          <a href="https://dharaverse.com" class="sidebar-link"><span>🏠</span> Dharaverse</a>
         </div>
       </div>
-
     </aside>
 
-  </div><!-- /#game-wrapper -->
+  </div>
 
-
-  <!-- Service Worker -->
+  <!-- Service Worker with force-update -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
         navigator.serviceWorker.register('/games/daily-mystery/sw.js')
-          .then(function (r) { console.log('[SW] Registered:', r.scope); })
+          .then(function (reg) {
+            console.log('[SW] Registered:', reg.scope);
+            reg.update();
+            reg.addEventListener('updatefound', function () {
+              var nw = reg.installing;
+              if (nw) {
+                nw.addEventListener('statechange', function () {
+                  if (nw.state === 'activated') {
+                    console.log('[SW] New version — reloading');
+                    window.location.reload();
+                  }
+                });
+              }
+            });
+            if (reg.waiting) reg.waiting.postMessage('skipWaiting');
+          })
           .catch(function (e) { console.warn('[SW] Failed:', e); });
       });
     }
   </script>
 
-  <!-- Game Scripts — ORDER MATTERS -->
-  <script src="js/data.js"></script>
-  <script src="js/logic.js"></script>
-  <script src="js/state.js"></script>
-  <script src="js/i18n.js"></script>
-  <script src="js/ui.js"></script>
-  <script src="js/share.js"></script>
-  <script src="js/streak.js"></script>
-  <script src="js/app.js"></script>
+  <!-- Cache-busted game scripts -->
+  <script src="js/data.js?v=3"></script>
+  <script src="js/logic.js?v=3"></script>
+  <script src="js/state.js?v=3"></script>
+  <script src="js/i18n.js?v=3"></script>
+  <script src="js/ui.js?v=3"></script>
+  <script src="js/share.js?v=3"></script>
+  <script src="js/streak.js?v=3"></script>
+  <script src="js/app.js?v=3"></script>
 
 </body>
 </html>
