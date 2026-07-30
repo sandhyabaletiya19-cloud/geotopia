@@ -43,6 +43,9 @@
     // SEO BLOCK 1: WWW REDIRECT
     // Must run FIRST before anything else
     // ==========================================
+
+    // TEMPORARILY DISABLED - causing redirect loop
+/*
     (function fixWWWRedirect() {
         var hostname = window.location.hostname;
 
@@ -58,7 +61,7 @@
             return; // Stop all other code running
         }
     })();
-
+*/
 
     // ==========================================
     // SEO BLOCK 2: CANONICAL TAG
