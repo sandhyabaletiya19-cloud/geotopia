@@ -11,64 +11,65 @@
     // ==========================================
 // MAP TILE INTERCEPTOR — fixes all Leaflet maps site-wide
 // ==========================================
-(function fixLeafletMaps() {
+(function // ==========================================
+// 🛡️ UNIVERSAL MAP TILE INTERCEPTOR (FOOLPROOF)
+// Fixes ALL maps (Games, Strategic Locations, Subfolders)
+// ==========================================
+(function universalMapFix() {
+    'use strict';
+
+    // 1. IMAGE LEVEL INTERCEPTOR
+    // Automatically catches ANY CARTO tile request and rewrites it to Google Maps
+    var originalSrcDescriptor = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
+
+    if (originalSrcDescriptor && originalSrcDescriptor.set) {
+        Object.defineProperty(HTMLImageElement.prototype, 'src', {
+            set: function(url) {
+                if (typeof url === 'string' && (url.includes('cartocdn') || url.includes('basemaps.carto'))) {
+                    // Match tile coordinates: /zoom/x/y.png
+                    var match = url.match(/\/(\d+)\/(\d+)\/(\d+)(?:@\d+x)?\.(?:png|jpg)/i);
+                    if (match) {
+                        var z = match[1];
+                        var x = match[2];
+                        var y = match[3];
+                        // Convert to Google Maps Hybrid (Satellite + Names)
+                        url = 'https://mt1.google.com/vt/lyrs=y&x=' + x + '&y=' + y + '&z=' + z;
+                    }
+                }
+                originalSrcDescriptor.set.call(this, url);
+            },
+            get: originalSrcDescriptor.get,
+            configurable: true
+        });
+    }
+
+    // 2. LEAFLET TILELAYER OVERRIDE
     function patchLeaflet() {
-        if (typeof L === 'undefined' || !L.tileLayer) {
-            // Leaflet not loaded yet — try again shortly
-            setTimeout(patchLeaflet, 50);
-            return;
-        }
+        if (!window.L || !L.tileLayer || L.tileLayer.__dvUniversalPatched) return;
 
-        // Already patched? Don't double-wrap
-        if (L.tileLayer.__dvPatched) return;
-
-        var originalTileLayer = L.tileLayer;
-
+        var origTileLayer = L.tileLayer;
         L.tileLayer = function(url, options) {
             options = options || {};
 
-            // Detect broken / key-required providers (CARTO etc.)
-            if (typeof url === 'string' &&
-                (url.indexOf('cartocdn') !== -1 ||
-                 url.indexOf('basemaps.carto') !== -1 ||
-                 url.indexOf('api.key') !== -1 ||
-                 url.indexOf('apikey') !== -1)) {
-
-                // 🔥 CHOOSE YOUR STYLE (uncomment only ONE):
-
-                // 1) Google Hybrid (satellite + labels) — closest to Google Maps
+            if (typeof url === 'string' && (url.includes('cartocdn') || url.includes('basemaps') || !url.includes('google'))) {
                 url = 'https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}';
-
-                // 2) Google Roadmap (classic Google Maps look)
-                // url = 'https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}';
-
-                // 3) Google Satellite only
-                // url = 'https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}';
-
-                // 4) Google Terrain
-                // url = 'https://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}';
-
-                // 5) Esri Dark Gray (if you want dark theme instead)
-                // url = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}';
-
                 options = Object.assign({}, options, {
                     subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
                     maxZoom: 20,
                     attribution: '© Google'
                 });
-
-                console.log('🗺️ Map tiles redirected → Google');
             }
-
-            return originalTileLayer.call(this, url, options);
+            return origTileLayer.call(this, url, options);
         };
 
-        L.tileLayer.__dvPatched = true;
-        console.log('✅ Leaflet map interceptor ready');
+        L.tileLayer.__dvUniversalPatched = true;
     }
 
-    // Start trying immediately
+    // Run patch immediately & continuously watch for dynamically loaded maps
     patchLeaflet();
+    setInterval(patchLeaflet, 200);
+
+    console.log('⚡ Universal Map Interceptor Active Site-Wide!');
 })();
 
     // ==========================================
