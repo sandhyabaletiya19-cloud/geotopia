@@ -125,11 +125,11 @@ class DharaVerseMapsApp {
   getTileLayer(style) {
     const tiles = {
       dark: L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+        'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
         { attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 18 }
       ),
       light: L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+        'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
         { attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 18 }
       ),
       terrain: L.tileLayer(

@@ -36,7 +36,7 @@
   /* ─────────────────────────────────────────────
      TILE LAYER — CartoDB Dark (no key needed)
      ───────────────────────────────────────────── */
-  var TILE_URL  = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+  var TILE_URL  = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}';
   var TILE_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>';
 
   /* ─────────────────────────────────────────────

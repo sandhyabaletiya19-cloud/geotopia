@@ -33,11 +33,11 @@
      MAP TILE SETS PER THEME
      ───────────────────────────────────────────── */
   var MAP_TILES = {
-    'default': 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    'default': 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
     'candy':   'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
     'ocean':   'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
     'jungle':  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    'lemon':   'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+    'lemon':   'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'
   };
 
   var _currentTileLayer = null;

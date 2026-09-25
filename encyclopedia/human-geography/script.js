@@ -863,7 +863,7 @@
             
             const map = L.map('population-map').setView([20, 0], 2);
             
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
                 attribution: '© OpenStreetMap, © CARTO',
                 maxZoom: 18
             }).addTo(map);
@@ -905,7 +905,7 @@
             
             const map = L.map('migration-map').setView([20, 0], 2);
             
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
                 attribution: '© OpenStreetMap, © CARTO'
             }).addTo(map);
             
