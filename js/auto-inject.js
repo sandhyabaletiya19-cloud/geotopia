@@ -9,6 +9,69 @@
     console.log('🔵 auto-inject.js loaded!');
 
     // ==========================================
+// MAP TILE INTERCEPTOR — fixes all Leaflet maps site-wide
+// ==========================================
+(function fixLeafletMaps() {
+    function patchLeaflet() {
+        if (typeof L === 'undefined' || !L.tileLayer) {
+            // Leaflet not loaded yet — try again shortly
+            setTimeout(patchLeaflet, 50);
+            return;
+        }
+
+        // Already patched? Don't double-wrap
+        if (L.tileLayer.__dvPatched) return;
+
+        var originalTileLayer = L.tileLayer;
+
+        L.tileLayer = function(url, options) {
+            options = options || {};
+
+            // Detect broken / key-required providers (CARTO etc.)
+            if (typeof url === 'string' &&
+                (url.indexOf('cartocdn') !== -1 ||
+                 url.indexOf('basemaps.carto') !== -1 ||
+                 url.indexOf('api.key') !== -1 ||
+                 url.indexOf('apikey') !== -1)) {
+
+                // 🔥 CHOOSE YOUR STYLE (uncomment only ONE):
+
+                // 1) Google Hybrid (satellite + labels) — closest to Google Maps
+                url = 'https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}';
+
+                // 2) Google Roadmap (classic Google Maps look)
+                // url = 'https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}';
+
+                // 3) Google Satellite only
+                // url = 'https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}';
+
+                // 4) Google Terrain
+                // url = 'https://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}';
+
+                // 5) Esri Dark Gray (if you want dark theme instead)
+                // url = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}';
+
+                options = Object.assign({}, options, {
+                    subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+                    maxZoom: 20,
+                    attribution: '© Google'
+                });
+
+                console.log('🗺️ Map tiles redirected → Google');
+            }
+
+            return originalTileLayer.call(this, url, options);
+        };
+
+        L.tileLayer.__dvPatched = true;
+        console.log('✅ Leaflet map interceptor ready');
+    }
+
+    // Start trying immediately
+    patchLeaflet();
+})();
+
+    // ==========================================
     // SEO CONFIG
     // ==========================================
     var SEO = {
