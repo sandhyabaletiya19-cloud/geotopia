@@ -1,3 +1,48 @@
+// ==========================================
+// ☢️ DHARAVERSE NUCLEAR MAP FIX 
+// Fixes all 300+ maps (Light, Dark, Games, Ghats)
+// ==========================================
+(function nuclearMapFix() {
+    function applyHack() {
+        // Check if Leaflet is loaded
+        if (!window.L || !L.TileLayer || !L.TileLayer.prototype) return;
+        
+        // Don't apply twice
+        if (L.TileLayer.prototype.__fixedByDhara) return;
+
+        // The Magic: Override the core Tile URL generator of Leaflet
+        var originalGetTileUrl = L.TileLayer.prototype.getTileUrl;
+        
+        L.TileLayer.prototype.getTileUrl = function(coords) {
+            var url = originalGetTileUrl.call(this, coords);
+            
+            // If the URL is trying to load CARTO/Watermarked tiles
+            if (url.includes('cartocdn') || url.includes('basemaps.carto')) {
+                
+                // If the original was a LIGHT map (like Eastern Ghats)
+                if (url.includes('light')) {
+                    return 'https://mt1.google.com/vt/lyrs=m&x=' + coords.x + '&y=' + coords.y + '&z=' + coords.z;
+                } 
+                // If it was DARK or anything else, use the Hybrid/Satellite view
+                else {
+                    return 'https://mt1.google.com/vt/lyrs=y&x=' + coords.x + '&y=' + coords.y + '&z=' + coords.z;
+                }
+            }
+            return url;
+        };
+
+        L.TileLayer.prototype.__fixedByDhara = true;
+        console.log('☢️ Leaflet Engine Hijacked: All maps fixed.');
+    }
+
+    // Run every 50ms for 5 seconds to ensure we catch Leaflet as it loads
+    var count = 0;
+    var timer = setInterval(function() {
+        applyHack();
+        if (count++ > 100) clearInterval(timer);
+    }, 50);
+})();
+
 // js/auto-inject.js
 // DharaVerse — Complete Auto Inject
 // Handles: CSS, AdSense, SEO, GSC, Dhara,
@@ -8,70 +53,7 @@
 
     console.log('🔵 auto-inject.js loaded!');
 
-    // ==========================================
-// MAP TILE INTERCEPTOR — fixes all Leaflet maps site-wide
-// ==========================================
-(function // ==========================================
-// 🛡️ UNIVERSAL MAP TILE INTERCEPTOR (FOOLPROOF)
-// Fixes ALL maps (Games, Strategic Locations, Subfolders)
-// ==========================================
-(function universalMapFix() {
-    'use strict';
-
-    // 1. IMAGE LEVEL INTERCEPTOR
-    // Automatically catches ANY CARTO tile request and rewrites it to Google Maps
-    var originalSrcDescriptor = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
-
-    if (originalSrcDescriptor && originalSrcDescriptor.set) {
-        Object.defineProperty(HTMLImageElement.prototype, 'src', {
-            set: function(url) {
-                if (typeof url === 'string' && (url.includes('cartocdn') || url.includes('basemaps.carto'))) {
-                    // Match tile coordinates: /zoom/x/y.png
-                    var match = url.match(/\/(\d+)\/(\d+)\/(\d+)(?:@\d+x)?\.(?:png|jpg)/i);
-                    if (match) {
-                        var z = match[1];
-                        var x = match[2];
-                        var y = match[3];
-                        // Convert to Google Maps Hybrid (Satellite + Names)
-                        url = 'https://mt1.google.com/vt/lyrs=y&x=' + x + '&y=' + y + '&z=' + z;
-                    }
-                }
-                originalSrcDescriptor.set.call(this, url);
-            },
-            get: originalSrcDescriptor.get,
-            configurable: true
-        });
-    }
-
-    // 2. LEAFLET TILELAYER OVERRIDE
-    function patchLeaflet() {
-        if (!window.L || !L.tileLayer || L.tileLayer.__dvUniversalPatched) return;
-
-        var origTileLayer = L.tileLayer;
-        L.tileLayer = function(url, options) {
-            options = options || {};
-
-            if (typeof url === 'string' && (url.includes('cartocdn') || url.includes('basemaps') || !url.includes('google'))) {
-                url = 'https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}';
-                options = Object.assign({}, options, {
-                    subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-                    maxZoom: 20,
-                    attribution: '© Google'
-                });
-            }
-            return origTileLayer.call(this, url, options);
-        };
-
-        L.tileLayer.__dvUniversalPatched = true;
-    }
-
-    // Run patch immediately & continuously watch for dynamically loaded maps
-    patchLeaflet();
-    setInterval(patchLeaflet, 200);
-
-    console.log('⚡ Universal Map Interceptor Active Site-Wide!');
-})();
-
+    
     // ==========================================
     // SEO CONFIG
     // ==========================================
